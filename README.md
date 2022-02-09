@@ -1,18 +1,14 @@
 
-# *Paradigms of Artificial Intelligence Programming* 
-
-![PAIP](paip-cover.gif)
+<img src="paip-cover.png" title="Paradigms of Artificial Intelligence Programming" width=413>
 
 This is an open-source repository for the book *Paradigms of Artificial
-Intelligence Programming: Case Studies in Common Lisp* by Peter Norvig (1992), and the code contained therein.  The copyright has reverted to the author, who has shared it here under MIT license.
-
-## The Book
+Intelligence Programming: Case Studies in Common Lisp* by Peter Norvig (1992), and the code contained therein.  The copyright has reverted to the author, who has shared it here under MIT license. On the list of [most influential books for programmers](https://github.com/cs-books/influential-cs-books). As seen on [TV](https://norvig.com/paip-tv.html). See also: [errata](https://norvig.com/paip-errata.html), [comments](https://norvig.com/paip-comments.html),  [retrospective](https://norvig.com/Lisp-retro.html).
 
 The book is available in these formats:
 
-* pdf: [PAIP-part1.pdf](https://github.com/norvig/paip-lisp/blob/master/PAIP-part1.pdf) (Chapters 1-14) and [PAIP-part2.pdf](https://github.com/norvig/paip-lisp/blob/master/PAIP-part2.pdf) (15-25)
-* text: [PAIP.txt](https://github.com/norvig/paip-lisp/blob/master/PAIP.txt) (containing many errors)
-* epub: [PAIP-safari.epub](https://github.com/norvig/paip-lisp/blob/master/PAIP-safari.epub) (much cleaner)
+* pdf: [see releases](https://github.com/norvig/paip-lisp/releases/tag/v1.0) for a scanned version
+* text: [PAIP.txt](https://github.com/norvig/paip-lisp/blob/master/PAIP.txt) (from OCR'ing the scanned pdf, containing many errors)
+* epub: [see releases](https://github.com/norvig/paip-lisp/releases/tag/1.1) for a cleaned up version downloaded from Safari (much cleaner than the scanned versions)
 * and `chapter?.md` markdown files:
 
 # Table of Contents
@@ -50,8 +46,6 @@ The book is available in these formats:
   * 23  [Compiling Lisp](docs/chapter23.md)
   * 24  [ANSI Common Lisp](docs/chapter24.md)
   * 25  [Troubleshooting](docs/chapter25.md)
-  
-As seen on [TV](https://norvig.com/paip-tv.html). See also: [errata](https://norvig.com/paip-errata.html), [comments](https://norvig.com/paip-comments.html),  [retrospective](https://norvig.com/Lisp-retro.html).
 
 ## The Lisp Files
 
@@ -76,7 +70,7 @@ The [Lisp code files](https://github.com/norvig/paip-lisp/tree/master/lisp) are 
 | 7    | [student.lisp](lisp/student.lisp)   | The Student Program                                                    |
 | 8    | [macsyma.lisp](lisp/macsyma.lisp)   | The Macsyma Program                                                    |
 | 8    | [macsymar.lisp](lisp/macsymar.lisp) | Simplification and integration rules for Macsyma                       |
-| 9-10 |  &nbsp;                             | (functions from these chapters are in [auxfns.lisp](lisp/auxfns.lisp)) |
+| 9-10 | [auxfns.lisp](lisp/auxfns.lisp)     | Auxiliary functions                                                    |
 | 11   | [unify.lisp](lisp/unify.lisp)       | Unification functions                                                  |
 | 11   | [prolog1.lisp](lisp/prolog1.lisp)   | First version of Prolog interpreter                                    |
 | 11   | [prolog.lisp](lisp/prolog.lisp)     | Final version of Prolog interpreter                                    |
@@ -128,5 +122,5 @@ the examples from chapter 1. Access this by doing `(requires "examples")`.
 
 # Other resources
 
-* I wrote a [retrospective](http://norvig.com/Lisp-retro.html) on the book.
-* There is a nice [Python version](https://github.com/dhconnelly/paip-python) of the code, by Georgia Tech.
+* I wrote a [retrospective](http://norvig.com/Lisp-retro.html) on the book in 2002.
+* There is a nice [Python version](https://github.com/dhconnelly/paip-python) of the code, by Daniel Connelly at Georgia Tech, supervised by Ashok Goel.

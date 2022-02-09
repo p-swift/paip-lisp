@@ -25,7 +25,7 @@ We will cover the "easier" part, syntax, first, and then move on to semantics.
 A good artificial language, like Lisp or C, is unambiguous.
 There is only one interpretation for a valid Lisp expression.
 Of course, the interpretation may depend on the state of the current state of the Lisp world, such as the value of global variables.
-But these dependencies can be explicitly enumerated, and once they are spelled out, then there can only be one meaning for the expression.[1](#fn0015)
+But these dependencies can be explicitly enumerated, and once they are spelled out, then there can only be one meaning for the expression.<a id="tfn19-1"></a><sup>[1](#fn19-1)</sup>
 
 Natural language does not work like this.
 Natural expressions are inherently ambiguous, depending on any number of factors that can never be quite spelled out completely.
@@ -328,7 +328,8 @@ Evaluation of (LENGTH (PARSER S 's)) took .13 Seconds of elapsed time.
 By memoizing p a r s e we reduce the parse time f rom 33 to.
 13 seconds, a 250-f old speed- up.
 We can get a more systematic comparison by looking at a range of examples.
-For example, consider sentences of the form "The man hit the table [with the ball]*" for zero or more repetitions of the PP "with the ball." In the following table we record N, the number of repetitions of the PP, along with the number of resulting parses,[2](#fn0020) and for both memoized and unmemoized versions of parse, the number of seconds to produce the parse, the number of parses per second (PPS), and the number of recursive calls to `parse`.
+For example, consider sentences of the form "The man hit the table [with the ball]*" for zero or more repetitions of the PP "with the ball."
+In the following table we record N, the number of repetitions of the PP, along with the number of resulting parses,<a id="tfn19-2"></a><sup>[2](#fn19-2)</sup> and for both memoized and unmemoized versions of parse, the number of seconds to produce the parse, the number of parses per second (PPS), and the number of recursive calls to `parse`.
 The performance of the memoized version is quite acceptable; for N=5, a 20-word sentence is parsed into 132 possibilities in .68 seconds, as opposed to the 20 seconds it takes in the unmemoized version.
 
 |      |        | Memoized |     |       | Unmemoized |     |       |
@@ -939,23 +940,13 @@ Here we see some final examples:
 > (meaning '([ 1 to 5 without [ 3 and 6 ] ] reversed))
 (5 4 2 1)
 > (meaning '(1 to 5 to 9))
-```
-
-`Sorry.
-I didn't understand that.`
-
-```lisp
+Sorry. I didn't understand that.
 NIL
 > (meaning '(1 to 5 without 3 and 7 repeat 2))
 Please pick one:
-      1: (12 4 5 7 12 4 5 7)
-      2: (12 4 5 7 7)
-```
-
-`Your choice?
-1`
-
-```lisp
+   1: (12 4 5 7 12 4 5 7)
+   2: (12 4 5 7 7)
+Your choice? 1
 (1 2 4 5 7 1 2 4 5 7)
 ```
 
@@ -1048,7 +1039,7 @@ You could also extend the grammar to accommodate an automatic timer, with phrase
                   (cons e (permute (remove e bag :count 1 :test #'eq))))))
 ```
 
-**Exercise  19.6 [m]** The definition of `permute` takes *O*(*n*2).
+**Exercise 19.6 [m]** The definition of `permute` takes *O*(*n*<sup>2</sup>).
 Replace it by an *O*(*n*) algorithm.
 
 ## 19.10 Answers
@@ -1062,23 +1053,18 @@ Replace it by an *O*(*n*) algorithm.
                         (parses (parse words (length words) table)))
           (mapcar #'parse-tree (complete-parses parses))))
 (defun parse (words num-words table)
-```
-
-`      "Bottom-up parse.
-returning all parses of any prefix of words."`
-
-```lisp
-      (unless (null words)
-          (let ((ans (aref table num-words)))
-              (if (not (eq ans 0))
-                      ans
-                      (setf (aref table num-words)
-                                    (mapcan #'(lambda (rule)
-                                                            (extend-parse (rule-lhs rule)
-                                                                                        (list (firstwords))
-                                                                                        (rest words) nil
-                                                                                        (- num-words 1) table))
-                                                        (lexical-rules (first words))))))))
+   "Bottom-up parse. returning all parses of any prefix of words."
+   (unless (null words)
+     (let ((ans (aref table num-words)))
+       (if (not (eq ans 0))
+           ans
+           (setf (aref table num-words)
+                  (mapcan #'(lambda (rule)
+                              (extend-parse (rule-lhs rule)
+                                            (list (firstwords))
+                                            (rest words) nil
+                                            (- num-words 1) table))
+                            (lexical-rules (first words))))))))
 (defun extend-parse (lhs rhs rem needed num-words table)
       "Look for the categories needed to complete the parse."
       (if (null needed)
@@ -1154,24 +1140,17 @@ In other words, we could have:
 
 ```lisp
 (defun permute (bag)
-      "Return a random permutation of the bag."
-      ;; It is done by converting the bag to a vector, but the
-      ;; resuit is always the same type as the input bag.
-      (let ((bag-copy (replace (make-array (length bag)) bag))
-                  (bag-type (if (listp bag) 'list (type-of bag))))
-```
-
-`            (coerce (permute-vector!
-bag-copy) bag-type)))`
-
-`(defun permute-vector!
-(vector)`
-
-```lisp
-      "Destructively permute (shuffle) the vector."
-      (loop for i from (length vector) downto 2 do
-                  (rotatef (aref vector (- i 1))
-                                    (aref vector (random i))))
+   "Return a random permutation of the bag."
+   ;; It is done by converting the bag to a vector, but the
+   ;; resuit is always the same type as the input bag.
+   (let ((bag-copy (replace (make-array (length bag)) bag))
+         (bag-type (if (listp bag) 'list (type-of bag))))
+      (coerce (permute-vector! bag-copy) bag-type)))
+(defun permute-vector! (vector)
+   "Destructively permute (shuffle) the vector."
+   (loop for i from (length vector) downto 2 do
+         (rotatef (aref vector (- i 1))
+                  (aref vector (random i))))
 vector)
 ```
 
@@ -1197,11 +1176,11 @@ Rarely, `rotatef` is used with more than two arguments, `(rotatef a b c)` is lik
 
 ----------------------
 
-[1](#xfn0015) Some erroneous expressions are underspecified and may return different results in different implementations, but we will ignore that problem.
-!!!(p) {:.ftnote1}
+<a id="fn19-1"></a><sup>[1](#tfn19-1)</sup>
+Some erroneous expressions are underspecified and may return different results in different implementations, but we will ignore that problem.
 
-[2](#xfn0020) The number of parses of sentences of this kind is the same as the number of bracketings of a arithmetic expression, or the number of binary trees with a given number of leaves.
+<a id="fn19-2"></a><sup>[2](#tfn19-2)</sup>
+The number of parses of sentences of this kind is the same as the number of bracketings of a arithmetic expression, or the number of binary trees with a given number of leaves.
 The resulting sequence (1,2,5,14,42,...) is known as the Catalan Numbers.
 This kind of ambiguity is discussed by [Church and Patil (1982)](B9780080571157500285.xhtml#bb0200) in their article *Coping with Syntactic Ambiguity, or How to Put the Block in the Box on the Table.*
-!!!(p) {:.ftnote1}
 

@@ -2,20 +2,18 @@
 ## Knowledge Representation and Reasoning
 
 > Knowledge itself is power.
-
+>
 > -Francis Bacon (1561-1626)
-
+>
 > The power resides in the knowledge.
-
+>
 > -Edward Feigenbaum
-
+>
 > Stanford University Heuristic Programming Project
-
+>
 > Knowledge is Knowledge, and vice versa.
-
-> -Tee shirt
-
-> Stanford University Heuristic Programming Project
+>
+> -Tee shirt<br>&nbsp; Stanford University Heuristic Programming Project
 
 In the 1960s, much of AI concentrated on search techniques.
 In particular, a lot of work was concerned with *theorem proving:* stating a problem as a small set of axioms and searching for a proof of the problem.
@@ -41,7 +39,7 @@ Much of the emphasis was on finding a good trade-off between *expressiveness* an
 If we want to guarantee that queries will be answered quickly, then we have to limit what can be expressed in the language.
 
 In the late 1980s, a series of results shed doubt on the hopes of finding an efficient language with any reasonable degree of expressiveness at all.
-Using mathematical techniques based on worst-case analysis, it was shown that even seemingly trivial languages were *intractable-*in the worst case, it would take an exponential amount of time to answer a simple query.
+Using mathematical techniques based on worst-case analysis, it was shown that even seemingly trivial languages were *intractable*—in the worst case, it would take an exponential amount of time to answer a simple query.
 
 Thus, in the 1990s the emphasis has shifted to *knowledge representation and reasoning,* a field that encompasses both the expressiveness and efficiency of languages but recognizes that the average case is more important than the worst case.
 No amount of knowledge can help solve an intractable problem in the worse case, but in practice the worst case rarely occurs.
@@ -100,11 +98,11 @@ More often than not, that definition is given in terms of predicate calculus.
 
 A predicate calculus representation assumes a universe of individuals, with relations and functions on those individuals, and sentences formed by combining relations with the logical connectives `and`, `or`, and `not`.
 Philosophers and psychologists will argue the question of how appropriate predicate calculus is as a model of human thought, but one point stands clear: predicate calculus is sufficient to represent anything that can be represented in a digital computer.
-This is easy to show: assuming the computer's memory has *n* bits, and the equation *bi* = 1 means that bit *i* is on, then the entire state of the computer is represented by a conjunction such as:
+This is easy to show: assuming the computer's memory has *n* bits, and the equation *b<sub>i</sub>* = 1 means that bit *i* is on, then the entire state of the computer is represented by a conjunction such as:
 
-b0=0&and;b1=0&and;b2=1...&and;bn=0
-
-![si1_e](images/chapter14/si1_e.gif)
+<img src="images/chapter14/si1_e.svg"
+onerror="this.src='images/chapter14/si1_e.png'; this.onerror=null;"
+alt="b_{0}=0 \wedge b_{1}=0 \wedge b_{2}=1 ... \wedge b_{n}=0">
 
 Once we can represent a state of the computer, it becomes possible to represent any computer program in predicate calculus as a set of axioms that map one state onto another.
 Thus, predicate calculus is shown to be a *sufficient* language for representing anything that goes on inside a computer-it can be used as a tool for analyzing any program from the outside.
@@ -115,9 +113,9 @@ But we should still be able to describe our system in terms of predicate calculu
 To do any less is to be sloppy.
 For example, we may want to manipulate numbers inside the computer by using the arithmetic instructions that are built into the CPU rather than by manipulating predicate calculus axioms, but when we write a square-root routine, it had better satisfy the axiom:
 
-x=y=>yxy=x
-
-![si2_e](images/chapter14/si2_e.gif)
+<img src="images/chapter14/si2_e.svg"
+onerror="this.src='images/chapter14/si2_e.png'; this.onerror=null;"
+alt="\sqrt{x} = y \Rightarrow y \times y = x">
 
 Predicate calculus also serves another purpose: as a tool that can be used *by* a program rather than *on* a program.
 All programs need to manipulate data, and some programs will manipulate data that is considered to be in predicate calculus notation.
@@ -429,10 +427,8 @@ Consider the following clauses:
 These clauses say that, for any person, the mother of that person and the father of that person are parents of that person.
 Now let us ask if there is a person who is his or her own parent:
 
-`> (?
-(parent ?y ?y))`
-
 ```lisp
+> (? (parent ?y ?y))
 ?Y = [Abort]
 ```
 
@@ -441,12 +437,7 @@ Without the printing, there would be no infinite loop:
 
 ```lisp
 (<- (self-parent) (parent ?y ?y))
-```
-
-`> (?
-(self-parent))`
-
-```lisp
+> (? (self-parent))
 Yes;
 Yes;
 No.
@@ -846,15 +837,10 @@ This is done by changing `index`:
 
 ```lisp
 (defun index (key)
-```
-
-`  "Store key in a dtree node.
-Key must be (predicate . args);`
-
-```lisp
-  it is stored in the predicate's dtree."
-  (dtree-index key (rename-variables key) ; store unique vars
-          (get-dtree (predicate key))))
+ "Store key in a dtree node. Key must be (predicate . args);
+ it is stored in the predicate's dtree."
+ (dtree-index key (rename-variables key) ; store unique vars
+     (get-dtree (predicate key))))
 ```
 
 With the new `index` in place, and after calling `test-index` to rebuild the data base, we are now ready to test the retrieval mechanism:
@@ -1047,15 +1033,15 @@ That way, queries that would have been higher-order in the original language bec
 The language admits three types of objects: *categories, relations*, and *individuals.* A category corresponds to a one-place predicate, a relation to a two-place predicate, and an individual to constant, or zero-place predicate.
 Statements in the language must have one of five primitive operators: `sub, rel, ind, val`, and `and.` They have the following form:
 
-`(sub`*subcategory super category*)
+`(sub` *subcategory super category*)
 
-`(rel`*relation domain-category range-category*)
+`(rel` *relation domain-category range-category*)
 
-`(ind`*individual category*)
+`(ind` *individual category*)
 
-`(val`*relation individual value*)
+`(val` *relation individual value*)
 
-`(and`*assertion...*)
+`(and` *assertion...*)
 
 The following table gives some examples, along with English translations:
 
@@ -1071,13 +1057,13 @@ For those who feel more comfortable with predicate calculus, the following table
 The most complicated definition is for rel.
 The form (rel *R A B*) means that every *R* holds between an individual of *A* and an individual of *B,* and furthermore that every individual of *A* participates in at least one *R* relation.
 
-| []()            |                                                                                                                    |
-|-----------------|--------------------------------------------------------------------------------------------------------------------|
-| `(sub`*AB*)     | &forall;*x:A*(*x*) &Superset; *B*(*x*)                                                                             |
-| `(rel`*RAB*)    | &forall;*x,y* : *R*(*x,y*) &Superset; *A*(*x*) A *B*(*y*) *^*&forall;*xA*(*x*) &Superset; &exist;*y* : *R*(*x, y*) |
-| `(ind`*IC)*     | *C*(*I*)                                                                                                           |
-| `(val`*RIV*)    | *R*(*I, V*)                                                                                                        |
-| `(and`*P Q...*) | *P ^ Q...*                                                                                                         |
+| []()             |                                                                                                                    |
+|------------------|--------------------------------------------------------------------------------------------------------------------|
+| `(sub` *AB*)     | &forall;*x:A*(*x*) &Superset; *B*(*x*)                                                                             |
+| `(rel` *RAB*)    | &forall;*x,y* : *R*(*x,y*) &Superset; *A*(*x*) A *B*(*y*) *^*&forall;*xA*(*x*) &Superset; &exist;*y* : *R*(*x, y*) |
+| `(ind` *IC)*     | *C*(*I*)                                                                                                           |
+| `(val` *RIV*)    | *R*(*I, V*)                                                                                                        |
+| `(and` *P Q...*) | *P ^ Q...*                                                                                                         |
 
 Queries in the language, not surprisingly, have the same form as assertions, except that they may contain variables as well as constants.
 Thus, to find out what kinds of animais there are, use the query `(sub ?kind animal)`.
@@ -1105,18 +1091,11 @@ Conceptually, the function to do this, `retrieve-fact`, should be as simple as t
 
 ```lisp
 (defun retrieve-fact (query)
-```
-
-`  "Find all facts that match query.
-Return a list of bindings.`
-
-`  Warning!!
-this version is incomplete."`
-
-```lisp
-  (if (eq (predicate query) 'and)
-    (retrieve-conjunction (args query))
-    (retrieve query bindings)))
+ "Find all facts that match query. Return a list of bindings.
+ Warning!! this version is incomplete."
+ (if (eq (predicate query) 'and)
+  (retrieve-conjunction (args query))
+  (retrieve query bindings)))
 ```
 
 Unfortunately, there are some complications.
@@ -1181,21 +1160,16 @@ In each case the extra argument is made optional so that previously written func
 Now `add-fact` and `retrieve-fact` comprise all we need to implement the language.
 Here is a short example where `add-fact` is used to add facts about bears and dogs, both as individuals and as species:
 
-`> (add-fact '(sub dog animal))`=> `T`
-
-`> (add-fact '(sub bear animal))`=> `T`
-
-`> (add-fact '(ind Fido dog))`=> `T`
-
-`> (add-fact '(ind Yogi bear))`=> `T`
-
-`> (add-fact '(val color Yogi brown))`=> `T`
-
-`> (add-fact '(val color Fido golden))`=> `T`
-
-`> (add-fact '(val latin-name bear ursidae))`=> `T`
-
-`> (add-fact '(val latin-name dog canis-familiaris))`=> `T`
+```lisp
+> (add-fact '(sub dog animal)) => T
+> (add-fact '(sub bear animal)) => T
+> (add-fact '(ind Fido dog)) => T
+> (add-fact '(ind Yogi bear)) => T
+> (add-fact '(val color Yogi brown)) => T
+> (add-fact '(val color Fido golden)) => T
+> (add-fact '(val latin-name bear ursidae)) => T
+> (add-fact '(val latin-name dog canis-familiaris)) => T
+```
 
 Now `retrieve-fact` is used to answer three questions: What kinds of animais are there?
 What are the Latin names of each kind of animal?
@@ -1452,21 +1426,16 @@ To support the frame notation, we define the macros `a` and `each` to make asser
 
 ```lisp
 (defmacro a (&rest args)
-  "Define a new individual and assert facts about it in the data base."
-  '(add-fact ',(translate-exp (cons 'a args))))
+ "Define a new individual and assert facts about it in the data base."
+ '(add-fact ',(translate-exp (cons 'a args))))
 (defmacro each (&rest args)
-  "Define a new category and assert facts about it in the data base."
-  '(add-fact ',(transiate-exp (cons 'each args))))
-```
-
-`(defmacro ??
-(&rest queries)`
-
-```lisp
-  "Return a list of answers satisfying the query or queries."
-  '(retrieve-setof
-    '.(translate-exp (maybe-add 'and (replace-?-vars queries))
-          :query)))
+ "Define a new category and assert facts about it in the data base."
+ '(add-fact ',(transiate-exp (cons 'each args))))
+(defmacro ?? (&rest queries)
+ "Return a list of answers satisfying the query or queries."
+ '(retrieve-setof
+  '.(translate-exp (maybe-add 'and (replace-?-vars queries))
+     :query)))
 ```
 
 All three of these macros call on `translate-exp` to translate from the frame syntax to the primitive syntax.
@@ -1573,7 +1542,9 @@ The typical backward-chaining rule says "Conclude X is true if Y is true." Thus,
 Representing true and false opens the door to a host of possible extensions.
 First, we could add multiple truth values beyond the simple "true" and "false." These could be symbolic values like "probably-true" or "false-by-default" or they could be numeric values representing probabilities or certainty factors.
 
-Second, we could introduce the idea of *possible worlds.* That is, the truth of a proposition could be unknown in the current world, but true if we assume *p*, and false if we assume *q.* In the possible world approach, this is handled by calling the current world *W*, and then creating a new world *W*1, which is just like *W* except that *p* is true, and *W*2, which is just like *W* except that *q* is true.
+Second, we could introduce the idea of *possible worlds.*
+That is, the truth of a proposition could be unknown in the current world, but true if we assume *p*, and false if we assume *q.*
+In the possible world approach, this is handled by calling the current world *W*, and then creating a new world *W*<sub>1</sub>, which is just like *W* except that *p* is true, and *W*<sub>2</sub>, which is just like *W* except that *q* is true.
 By doing reasoning in different worlds we can make predictions about the future, resolve ambiguitites about the current state, and do reasoning by cases.
 
 For example, possible worlds allow us to solve Moore's communism/democracy problem ([page 466](#p466)).
@@ -1612,34 +1583,24 @@ The following changes to `index` and `dtree-index` add support for worlds:
 ```lisp
 (defvar *world* 'W0 "The current world used by index and fetch.")
 (defun index (key &optional (world *world*))
-```
-
-`  "Store key in a dtree node.
-Key must be (predicate . args);`
-
-```lisp
-  it is stored in the dtree, indexed by the world."
-  (dtree-index key key world (get-dtree (predicate key))))
+ "Store key in a dtree node. Key must be (predicate . args);
+ it is stored in the dtree, indexed by the world."
+ (dtree-index key key world (get-dtree (predicate key))))
 (defun dtree-index (key value world dtree)
-  "Index value under all atoms of key in dtree."
-  (cond
-    ((consp key)    ; index on both first and rest
-      (dtree-index (first key) value world
-            (or (dtree-first dtree)
-              (setf (dtree-first dtree) (make-dtree))))
-      (dtree-index (rest key) value world
-            (or (dtree-rest dtree)
-              (setf (dtree-rest dtree) (make-dtree)))))
-    ((null key))    ; don't index on nil
-    ((variable-p key)    ; index a variable
-      (nalist-push world value (dtree-var dtree)))
-```
-
-`    (t ;; Make sure there is an nlist for this atom.
-and add to it`
-
-```lisp
-      (nalist-push world value (lookup-atom key dtree)))))
+ "Index value under all atoms of key in dtree."
+ (cond
+  ((consp key)  ; index on both first and rest
+   (dtree-index (first key) value world
+      (or (dtree-first dtree)
+       (setf (dtree-first dtree) (make-dtree))))
+   (dtree-index (rest key) value world
+      (or (dtree-rest dtree)
+       (setf (dtree-rest dtree) (make-dtree)))))
+  ((null key))  ; don't index on nil
+  ((variable-p key)  ; index a variable
+   (nalist-push world value (dtree-var dtree)))
+  (t ;; Make sure there is an nlist for this atom. and add to it
+   (nalist-push world value (lookup-atom key dtree)))))
 ```
 
 The new function `nalist-push` adds a value to an nalist, either by inserting the value in an existing key's list or by adding a new key/value list:
@@ -1747,32 +1708,27 @@ To reflect this change, the new functions all have names ending in -`in-world`:
 
 ```lisp
 (defun mapc-retrieve-in-world (fn query)
-  "For every fact in the current world that matches the query,
-  apply the function to the binding list."
-  (dolist (bucket (fetch query))
-    (dolist (world/entries bucket)
-      (when (world-current (first world/entries))
-        (dolist (answer (rest world/entries))
-          (let ((bindings (unify query answer)))
-            (unless (eq bindings fall)
-              (funcall fn bindings))))))))
+ "For every fact in the current world that matches the query,
+ apply the function to the binding list."
+ (dolist (bucket (fetch query))
+  (dolist (world/entries bucket)
+   (when (world-current (first world/entries))
+    (dolist (answer (rest world/entries))
+     (let ((bindings (unify query answer)))
+      (unless (eq bindings fall)
+       (funcall fn bindings))))))))
 (defun retrieve-in-world (query)
-```
-
-`  "Find all facts that match query.
-Return a list of bindings."`
-
-```lisp
-  (let ((answers nil))
-    (mapc-retrieve-in-world
-      #'(lambda (bindings) (push bindings answers))
-      query)
-    answers))
+ "Find all facts that match query. Return a list of bindings."
+ (let ((answers nil))
+  (mapc-retrieve-in-world
+   #'(lambda (bindings) (push bindings answers))
+   query)
+  answers))
 (defun retrieve-bagof-in-world (query)
-  "Find all facts in the current world that match query.
-  Return a list of queries with bindings filled in."
-  (mapcar #'(lambda (bindings) (subst-bindings bindings query))
-          (retrieve-in-world query)))
+ "Find all facts in the current world that match query.
+ Return a list of queries with bindings filled in."
+ (mapcar #'(lambda (bindings) (subst-bindings bindings query))
+     (retrieve-in-world query)))
 ```
 
 Now let's see how these worlds work.
@@ -1791,11 +1747,11 @@ First, in `W0` we see that the facts from `test-index` are still in the data bas
 Now we create and use a new world that inherits from `W0`.
 Two new facts are added to this new world:
 
-`> (use-new-world)`=> `W7031`
-
-`> (index '(p new c))`=> `T`
-
-`> (index '(~p b b))`=> `T`
+```lisp
+> (use-new-world) => W7031
+> (index '(p new c)) => T
+> (index '(~p b b)) => T
+```
 
 We see that the two new facts are accessible in this world:
 
@@ -1813,13 +1769,12 @@ We see that the two new facts are accessible in this world:
 
 Now we create another world as an alternative to the current one by first switching back to the original `W0`, then creating the new world, and then adding some facts:
 
-`> (use-world 'W0)`=> `W0`
-
-`> (use-new-world)`=> `W7173`
-
-`> (index '(p newest c))`=> `T`
-
-`> (index '(~p c newest))`=> `T`
+```lisp
+> (use-world 'W0) => W0
+> (use-new-world) => W7173
+> (index '(p newest c)) => T
+> (index '(~p c newest)) => T
+```
 
 Here we see that the facts entered in `W7031` are not accessible, but the facts in the new world and in `W0` are:
 
@@ -1892,7 +1847,8 @@ The version in widest used today is the assumption-based truth maintenance syste
 
 There is little communication between the logic programming and knowledge representation communities, even though they cover overlapping territory.
 [Colmerauer (1990)](B9780080571157500285.xhtml#bb0250) and [Cohen (1990)](B9780080571157500285.xhtml#bb0230) describe Logic Programming languages that address some of the issues covered in this chapter.
-Key papers in equality reasoning include Galler and Fisher 1974, [Kornfeld 1983](B9780080571157500285.xhtml#bb0645),[1](#fn0015) Jaffar, Lassez, and Maher 1984, and [van Emden and Yukawa 1987](B9780080571157500285.xhtml#bb1265).
+Key papers in equality reasoning include Galler and Fisher 1974, [Kornfeld 1983](B9780080571157500285.xhtml#bb0645),<a id="tfn14-1"></a><sup>[1](#fn14-1)</sup>
+Jaffar, Lassez, and Maher 1984, and [van Emden and Yukawa 1987](B9780080571157500285.xhtml#bb1265).
 [H&ouml;lldobler's book (1987)](B9780080571157500285.xhtml#bb0550) includes an overview of the area.
 Papers on extending unification in ways other than equality include [A&iuml;t-Kaci et al.
 1987](B9780080571157500285.xhtml#bb0025) and [Staples and Robinson 1988](B9780080571157500285.xhtml#bb1125).
@@ -1958,10 +1914,5 @@ Now figure out how to find all the nlists that an item is indexed under.
 
 ----------------------
 
-[1](#xfn0015) A commentary on this paper appears in [Elcock and Hoddinott 1986](B9780080571157500285.xhtml#bb0360).
-!!!(p) {:.ftnote1}
-
-Part IV
-Advanced AI Programs
-!!!(p) {:.parttitle}
-
+<a id="fn14-1"></a><sup>[1](#tfn14-1)</sup>
+A commentary on this paper appears in [Elcock and Hoddinott 1986](B9780080571157500285.xhtml#bb0360).

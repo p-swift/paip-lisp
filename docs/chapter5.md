@@ -117,7 +117,8 @@ This presupposes that there is some way of deciding that `X` is a variable and t
 We must then arrange to substitute `vacation` for `X` within the response, in order to get the final transformation.
 
 Ignoring for a moment the problem of transforming the pattern into the response, we can see that this notion of pattern matching is just a generalization of the Lisp function `equal`.
-Below we show the function `simple-equal`, which is like the built-in function `equal`,<sup>[1](#chapter5-fn1)</sup> and the function `pat-match`, which is extended to handle pattern-matching variables:
+Below we show the function `simple-equal`, which is like the built-in function `equal`,<a id="tfn05-1"></a><sup>[1](#fn05-1)</sup>
+and the function `pat-match`, which is extended to handle pattern-matching variables:
 
 ```lisp
 (defun simple-equal (x y)
@@ -161,8 +162,7 @@ So the predicate `variable-p` can be defined as follows, and we now have a compl
 
 > (pat-match '(I need a ?X) '(I need a vacation))
 T
-
-> (pat-match '(I need a ?X) ' (I really need a vacation))
+> (pat-match '(I need a ?X) '(I really need a vacation))
 NIL
 ```
 
@@ -506,24 +506,24 @@ The matching rule with the highest priority was chosen.
 Note that putting the rules in order achieves the same effect as having a priority number on each rule: the first rule implicitly has the highest priority, the second rule is next highest, and so on.
 
 Here is a short list of rules, selected from Weizenbaum's original article, but with the form of the rules updated to the form we are using.
-The answer to exercise 5.19 contains a longer list of rules.
+The answer to exercise 5.18 contains a longer list of rules.
 
 ```lisp
 (defparameter *eliza-rules*
   '((((?* ?x) hello (?* ?y))
-     (How do you do.  Please state your problem.))
+     (How do you do. Please state your problem.))
     (((?* ?x) I want (?* ?y))
-     (What would i t mean if you got ?y)
+     (What would it mean if you got ?y)
      (Why do you want ?y) (Suppose you got ?y soon))
     (((?* ?x) if (?* ?y))
-     (Do you really think i t s l i k e l y that ?y) (Do you wish that ?y)
+     (Do you really think its likely that ?y) (Do you wish that ?y)
      (What do you think about ?y) (Really-- if ?y))
     (((?* ?x) no (?* ?y))
      (Why not?) (You are being a bit negative)
      (Are you saying "NO" just to be negative?))
     (((?* ?x) I was (?* ?y))
-     (Were you really ?) (Perhaps I already knew you were ?y)
-     (Why do you t e l l me you were ?y now?))
+     (Were you really?) (Perhaps I already knew you were ?y)
+     (Why do you tell me you were ?y now?))
     (((?* ?x) I feel (?* ?y))
      (Do you often feel ?y ?))
     (((?* ?x) I felt (?* ?y))
@@ -630,8 +630,8 @@ ELIZA> (no not really)
 (ARE YOU SAYING "NO" JUST TO BE NEGATIVE?)
 ELIZA> (no)
 (ARE YOU SAYING "NO" JUST TO BE NEGATIVE?)
-ELIZA> (forget it-- i was wondering how general the program i s)
-(WHY DO YOU TELL ME YOU WERE WONDERING HOW GENERAL THE PROGRAM I S NOW?)
+ELIZA> (forget it-- i was wondering how general the program is)
+(WHY DO YOU TELL ME YOU WERE WONDERING HOW GENERAL THE PROGRAM IS NOW?)
 ELIZA> (i felt like it)
 (WHAT OTHER FEELINGS DO YOU HAVE?)
 ELIZA> (i feel this is enough)
@@ -822,7 +822,7 @@ Among other things, a recursive transformation system could be used to handle ab
 That is, a form like "don't" could be transformed into "do not" and then processed again.
 That way, the other rules need only work on inputs matching "do not."
 
-### Answer 5.19
+### Answer 5.18
 The following includes most of Weizenbaum's rules:
 
 ```lisp
@@ -843,7 +843,7 @@ The following includes most of Weizenbaum's rules:
      (Does thinking of ?y bring anything else to mind?)
      (What else do you remember) (Why do you recall ?y right now?)
      (What in the present situation reminds you of ?y)
-     (What i s the connection between me and ?y))
+     (What is the connection between me and ?y))
     (((?* ?x) do you remember (?* ?y))
      (Did you think I would forget ?y ?)
      (Why do you think I should recall ?y now)
@@ -873,19 +873,19 @@ The following includes most of Weizenbaum's rules:
      (Can you explain why you are suddenly ?y))
     (((?* ?x) I am sad (?* ?y))
      (I am sorry to hear you are depressed)
-     (I 'm sure i t ' s not pleasant to be sad))
+     (I'm sure it's not pleasant to be sad))
     (((?* ?x) are like (?* ?y))
      (What resemblance do you see between ?x and ?y))
-    (((?* ?x) i s like (?* ?y))
+    (((?* ?x) is like (?* ?y))
      (In what way is it that ?x is like ?y)
      (What resemblance do you see?)
      (Could there really be some connection?) (How?))
     (((?* ?x) alike (?* ?y))
-     (In what way?) (What s i m i l a r i t i e s are there?))
+     (In what way?) (What similarities are there?))
     (((?* ?x) same (?* ?y))
      (What other connections do you see?))
     (((?* ?x) I was (?* ?y))
-     (Were you really ?) (Perhaps I already knew you were ?y)
+     (Were you really?) (Perhaps I already knew you were ?y)
      (Why do you tell me you were ?y now?))
     (((?* ?x) was I (?* ?y))
      (What if you were ?y ?) (Do you think you were ?y)
@@ -950,4 +950,5 @@ The following includes most of Weizenbaum's rules:
 
 ----------------------
 
-<a name="chapter5-fn1">1</a>: The difference is that `simple-equal` does not handle strings.
+<a id="fn05-1"></a><sup>[1](#tfn05-1)</sup>
+The difference is that `simple-equal` does not handle strings.

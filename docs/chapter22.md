@@ -16,33 +16,24 @@ The Scheme manual is only 45 pages (only 38 if you omit the example, bibliograph
 Here is a partial list of the ways Scheme is simpler than Common Lisp:
 
 1.  Scheme has fewer built-in functions and special forms.
-!!!(p) {:.numlist}
 
 2.  Scheme has no special variables, only lexical variables.
-!!!(p) {:.numlist}
 
 3.  Scheme uses the same name space for functions and variables (and everything else).
-!!!(p) {:.numlist}
 
 4.  Scheme evaluates the function part of a function call in exactly the same way as the arguments.
-!!!(p) {:.numlist}
 
 5.  Scheme functions can not have optional and keyword parameters.
 However, they can have the equivalent of a `&rest` parameter.
-!!!(p) {:.numlist}
 
 6.  Scheme has no `block, return, go, orthrow`; a single function `(call/cc)` replaces all of these (and does much more).
-!!!(p) {:.numlist}
 
 7.  Scheme has no packages.
 Lexical variables can be used to implement package-like structures.
-!!!(p) {:.numlist}
 
 8.  Scheme, as a standard, has no macros, although most implementations provide macros as an extension.
-!!!(p) {:.numlist}
 
 9.  Scheme has no special forms for looping; instead it asks the user to use recursion and promises to implement the recursion efficiently.
-!!!(p) {:.numlist}
 
 The five main special forms in Scheme are `quote` and `if`, which are just as in Common Lisp; `begin` and `set!`, which are just different spellings for `progn` and `setq`; and `lambda`, which is as in Common Lisp, except that it doesn't require a # 'before it.
 In addition, Scheme allows variables, constants (numbers, strings, and characters), and function calls.
@@ -55,21 +46,21 @@ The empty list is denoted by `()`, and it is distinct from the false value, #f.
 There are also minor lexical differences in the conventions for complex numbers and numbers in different bases, but these can be ignored for all the programs in this book.
 Also, in Scheme a single macro, `define`, serves to define both variables and functions.
 
-| Scheme                          | Common Lisp                             |
-|---------------------------------|-----------------------------------------|
-| *var*                           | *var*                                   |
-| *constant*                      | *constant*                              |
-| (`quote`*x*) or '*x*            | (`quote`*x*) or '*x*                    |
-| (`begin`*x*...)                 | (`progn`*x*...)                         |
-| (`set!`*var x*)                 | (`setq`*var x*)                         |
-| (`if`*pab*)                     | (`if`*pab*)                             |
-| (`lambda`*parms x*...)          | `#'` (`lambda`*parms x*...)             |
-| (*fn arg*...)                   | (*fn arg*...) or (`funcall`*fn arg*...) |
-| `#t`                            | `t`                                     |
-| `#f`                            | `nil`                                   |
-| `( )`                           | `nil`                                   |
-| (`define`*varexp*)              | (`defparameter`*var exp*)               |
-| (`define` (*fnparm*...) *body*) | (`defun`*fn* (*parm*...) *body*)        |
+| Scheme                           | Common Lisp                              |
+|----------------------------------|------------------------------------------|
+| *var*                            | *var*                                    |
+| *constant*                       | *constant*                               |
+| (`quote` *x*) or '*x*            | (`quote` *x*) or '*x*                    |
+| (`begin` *x*...)                 | (`progn` *x*...)                         |
+| (`set!` *var x*)                 | (`setq` *var x*)                         |
+| (`if` *p a b*)                   | (`if` *p a b*)                           |
+| (`lambda` *parms x*...)          | `#'` (`lambda` *parms x*...)             |
+| (*fn arg*...)                    | (*fn arg*...) or (`funcall` *fn arg*...) |
+| `#t`                             | `t`                                      |
+| `#f`                             | `nil`                                    |
+| `( )`                            | `nil`                                    |
+| (`define` *var exp*)             | (`defparameter` *var exp*)               |
+| (`define` (*fn parm*...) *body*) | (`defun` *fn* (*parm*...) *body*)        |
 
 **Exercise  22**.**1** [**s**] What does the following expression evaluate to in Scheme?
 How many errors does it have as a Common Lisp expression?
@@ -89,7 +80,8 @@ Scheme would use consistent names-`reverse`!
 and `remove`!
 -if these functions were defined at all (they are not defined in the standard).
 Most Scheme predicates end in '`?`', not '`p`'.
-This makes predicates more obvious and eliminates the complicated conventions for adding a hyphen before the `p`.[1](#fn0010) The only problem with this convention is in spoken language: is `equal?` pronounced "equal-question-mark" or "equal-q" or perhaps equal, with rising intonation?
+This makes predicates more obvious and eliminates the complicated conventions for adding a hyphen before the `p`.<a id="tfn22-1"></a><sup>[1](#fn22-1)</sup>
+The only problem with this convention is in spoken language: is `equal?` pronounced "equal-question-mark" or "equal-q" or perhaps equal, with rising intonation?
 This would make Scheme a tone language, like Chinese.
 
 In Scheme, it is an error to apply `car` or `cdr` to the empty list.
@@ -211,8 +203,9 @@ Furthermore, the global environment is distinct in that every symbol is implicit
 
 As an example, suppose we interpret the function call `(f 1 2 3)`, and that the functions `f` has been defined by the Scheme expression:
 
-`(set!
-f (lambda (a b c) (+ a (g b c))))`
+```lisp
+(set! f (lambda (a b c) (+ a (g b c))))
+```
 
 Then we will interpret `( f 1 2 3 )` by interpreting the body of `f` with the environment:
 
@@ -303,35 +296,25 @@ Note the Common Lisp prompt is ">," while the Scheme prompt is "==>."
 
 ```lisp
 > (scheme)
-==> (+  2 2)
+==> (+ 2 2)
 4
-==> ((if (=  1 2) * +) 3 4)
+==> ((if (= 1 2) * +) 3 4)
 7
-==> ((if (=  1 1) * +) 3 4)
+==> ((if (= 1 1) * +) 3 4)
 12
-```
-
-`==> (set!
-fact (lambda (n)`
-
-```lisp
-                (if (= n 0) 1
-                    (* n (fact (- n 1))))))
-#<DTP-LEXICAL-CLOSURE 36722615  >
+==> (set! fact (lambda (n)
+        (if (= n 0) 1
+          (* n (fact (- n 1))))))
+#<DTP-LEXICAL-CLOSURE 36722615 >
 ==> (fact 5)
 120
-```
-
-`==> (set!
-table (lambda (f start end)`
-
-```lisp
-                    (if (<= start end)
-                        (begin
-                          (write (list start (f start)))
-                          (newline)
-                          (table f (+ start 1) end)))))
-#<DTP-LEXICAL-CLOSURE 41072172  >
+==> (set! table (lambda (f start end)
+          (if (<= start end)
+            (begin
+             (write (list start (f start)))
+             (newline)
+             (table f (+ start 1) end)))))
+#<DTP-LEXICAL-CLOSURE 41072172 >
 ==> (table fact 1 10)
 (1 1)
 (2 2)
@@ -483,26 +466,16 @@ Here are the definitions of nine important macros in Scheme:
                                 .,(rest clause))))
                 clauses)))))
 (def-scheme-macro define (name &rest body)
-  (if (atom name)
-```
-
-`              '(begin (set!
-,name . ,body) ',name)`
-
-```lisp
-              '(define ,(first name)
-          (lambda ,(rest name) . ,body))))
+ (if (atom name)
+       '(begin (set! ,name . ,body) ',name)
+       '(define ,(first name)
+     (lambda ,(rest name) . ,body))))
 (def-scheme-macro delay (computation)
   '(lambda () ,computation))
 (def-scheme-macro letrec (bindings &rest body)
-  '(let ,(mapcar #'(lambda (v) (list (first v) nil)) bindings)
-```
-
-`        ,@(mapcar #'(lambda (v) '(set!
-. ,v)) bindings)`
-
-```lisp
-      .,body))
+ '(let ,(mapcar #'(lambda (v) (list (first v) nil)) bindings)
+    ,@(mapcar #'(lambda (v) '(set! . ,v)) bindings)
+   .,body))
 ```
 
 We can test out the macro facility:
@@ -517,49 +490,24 @@ We can test out the macro facility:
 ```lisp
 ((LAMBDA (X Y) (+ X Y)) 1 2)
 > (scheme-macro-expand
-    '(letrec
+  '(letrec
+    ((even? (lambda (x) (or (= x 0) (odd? (- x 1)))))
+     (odd? (lambda (x) (even? (- x 1)))))
 ```
 
-`        ((even?
-(lambda (x) (or (= x 0) (odd?
-(- x 1)))))`
-
-`          (odd?
-(lambda (x) (even?
-(- x 1)))))`
-
-`        (even?
+`    (even?
 z)))`=>
 
-`(LET ((EVEN?
-NIL)`
-
-`              (ODD?
-NIL))`
-
-`  (SET!
-EVEN?
-(LAMBDA (X) (OR (= X 0) (ODD?
-(- X 1)))))`
-
-`  (SET!
-ODD?
-(LAMBDA (X) (EVEN?
-(- X 1))))`
-
-`  (EVEN?
-Z))`
-
 ```lisp
+(LET ((EVEN? NIL)
+       (ODD? NIL))
+ (SET! EVEN? (LAMBDA (X) (OR (= X 0) (ODD? (- X 1)))))
+ (SET! ODD? (LAMBDA (X) (EVEN? (- X 1))))
+ (EVEN? Z))
 > (scheme)
 ==> (define (reverse 1)
-```
-
-`      (if (null?
-1) nil`
-
-```lisp
-            (append (reverse (cdr 1)) (list (car 1)))))
+   (if (null? 1) nil
+      (append (reverse (cdr 1)) (list (car 1)))))
 REVERSE
 ==> (reverse '(a b c d))
 (D C B A)
@@ -572,9 +520,7 @@ REVERSE
 
 The macro `define` is just like `set!`, except that it returns the symbol rather than the value assigned to the symbol.
 In addition, `define` provides an optional syntax for defining functions-it serves the purposes of both `defun` and `defvar`.
-The syntax (`define` (*fn*.
-*args*).*body*) is an abbreviation for (`define`*fn* (`lambda`*args*.
-*body*)).
+The syntax (`define` (*fn* . *args*) . *body*) is an abbreviation for (`define` *fn* (`lambda` *args* . *body*)).
 
 In addition, Scheme provides a notation where `define` can be used inside a function definition in a way that makes it work like `let` rather than `set!.`
 
@@ -634,50 +580,45 @@ I use uppercase to indicate that go-to statements are being used, but this conve
 
 ```lisp
 (defun interp (x &optional env)
-  "Evaluate the expression x in the environment env.
-  This version is properly tail-recursive."
-  (prog ()
-    :INTERP
-    (return
-      (cond
-        ((symbolp x) (get-var x env))
-        ((atom x) x)
-        ((scheme-macro (first x))
-          (setf x (scheme-macro-expand x)) (go :INTERP))
-        ((case (first x)
-            (QUOTE (second x))
-            (BEGIN (pop x) ; pop off the BEGIN to get at the args
-                      ;; Now interpret all but the last expression
-                      (loop while (rest x) do (interp (pop x) env))
-                      ;; Finally, rename the last expression as x
-                      (setf x (first x))
-                      (GO :INTERP))
-```
-
-`            (SET!    (set-var!
-(second x) (interp (third x) env) env))`
-
-```lisp
-            (IF              (setf x (if (interp (second x) env)
-                                (third x)
-                                (fourth x)))
-                      ;; That is, rename the right expression as x
-                      (GO :INTERP))
-            (LAMBDA (make-proc :env env :parms (second x)
-                                :code (maybe-add 'begin (rest2 x))))
-            (t      ;; a procedure application
-                    (let ((proc (interp (first x) env))
-                          (args (mapcar #'(lambda (v) (interp v env))
-                                                      (rest x))))
-                      (if (proc-p proc)
-                            ;; Execute procedure with rename+goto
-                            (progn
-                              (setf x (proc-code proc))
-                              (setf env (extend-env (proc-parms proc) args
-                                                                          (proc-env proc)))
-                              (GO :INTERP))
-                            ;; else apply primitive procedure
-                            (apply proc args))))))))))
+ "Evaluate the expression x in the environment env.
+ This version is properly tail-recursive."
+ (prog ()
+  :INTERP
+  (return
+   (cond
+    ((symbolp x) (get-var x env))
+    ((atom x) x)
+    ((scheme-macro (first x))
+     (setf x (scheme-macro-expand x)) (go :INTERP))
+    ((case (first x)
+      (QUOTE (second x))
+      (BEGIN (pop x) ; pop off the BEGIN to get at the args
+           ;; Now interpret all but the last expression
+           (loop while (rest x) do (interp (pop x) env))
+           ;; Finally, rename the last expression as x
+           (setf x (first x))
+           (GO :INTERP))
+      (SET!  (set-var! (second x) (interp (third x) env) env))
+      (IF       (setf x (if (interp (second x) env)
+                (third x)
+                (fourth x)))
+           ;; That is, rename the right expression as x
+           (GO :INTERP))
+      (LAMBDA (make-proc :env env :parms (second x)
+                :code (maybe-add 'begin (rest2 x))))
+      (t   ;; a procedure application
+          (let ((proc (interp (first x) env))
+             (args (mapcar #'(lambda (v) (interp v env))
+                           (rest x))))
+           (if (proc-p proc)
+              ;; Execute procedure with rename+goto
+              (progn
+               (setf x (proc-code proc))
+               (setf env (extend-env (proc-parms proc) args
+                                     (proc-env proc)))
+               (GO :INTERP))
+              ;; else apply primitive procedure
+              (apply proc args))))))))))
 (defun print-proc (proc &optional (stream *standard-output*) depth)
   (declare (ignore depth))
   (format stream "{~a}" (or (proc-name proc) '??)))
@@ -802,30 +743,20 @@ Here's how the `throw/catch` mechanism would look in Scheme:
 
 ```lisp
 (define (print-table l )
-  (call/cc
-    (lambda (escape)
-```
-
-`      (set!
-not-a-number escape)`
-
-```lisp
-      (map print-sqrt-abs l))))
+ (call/cc
+  (lambda (escape)
+   (set! not-a-number escape)
+   (map print-sqrt-abs l))))
 (define (print-sqrt-abs x)
   (write (sqrt (abs (must-be-number x)))))
 (define (must-be-number x)
   (if (numberp x) x
       (not-a-number "huh?")))
 (define (map fn l)
-```
-
-`  (if (null?
-l)`
-
-```lisp
-      '()
-      (cons (fn (first l))
-              (map fn (rest 1)))))
+ (if (null? l)
+   '()
+   (cons (fn (first l))
+       (map fn (rest 1)))))
 ```
 
 The ability to return to a pending point in the computation is useful for this kind of error and interrupt handling.
@@ -833,14 +764,9 @@ However, the truly amazing, wonderful thing about `call/cc` is the ability to re
 Consider a slight variation:
 
 ```lisp
-=> (+  1 (call/cc (lambda (cc)
-```
-
-`                      (set!
-old-cc  cc)`
-
-```lisp
-                      (+  20 (cc 300)))))
+=> (+ 1 (call/cc (lambda (cc)
+           (set! old-cc cc)
+           (+ 20 (cc 300)))))
 301
 => (old-cc 500)
 501
@@ -869,15 +795,13 @@ We could write:
 
 and a call to `integer` would return some random positive integer.
 In addition, suppose we had a function, `fail`, which doesn't return at all but instead causes execution to continue at a prior `amb` point, with the other choice taken.
-Then we could write succinct[2](#fn0015) backtracking code like the following:
+Then we could write succinct<a id="tfn22-2"></a><sup>[2](#fn22-2)</sup> backtracking code like the following:
 
 ```lisp
 (define (prime)
-  (let ((n (integer)))
+ (let ((n (integer)))
+ (if (prime? n) n (fail))))
 ```
-
-`  (if (prime?
-n) n (fail))))`
 
 If `prime?` is a predicate that returns true only when its argument is a prime number, then prime will always return some `prime` number, decided by generating random integers.
 While this looks like a major change to the language-adding backtracking and nondeterminism-it turns out that `amb` and `fail` can be implemented quite easily with `cal1/cc`.
@@ -899,29 +823,19 @@ The function `random-choice` is what `amb` expands into: it decides which choice
 ```lisp
 (define backtrack-points nil)
 (define (fail)
-  (let ((last-choice (car backtrack-points)))
-```
-
-`    (set!
-backtrack-points (cdr backtrack-points))`
-
-```lisp
-    (last-choice)))
+ (let ((last-choice (car backtrack-points)))
+  (set! backtrack-points (cdr backtrack-points))
+  (last-choice)))
 (define (random-choice f g)
   (if (=  1 (random 2))
       (choose-first f g)
       (choose-first g f)))
 (define (choose-first f g)
-  (call/cc
-    (lambda (k)
-```
-
-`      (set!
-backtrack-points`
-
-```lisp
-            (cons (lambda () (k (g))) backtrack-points))
-      (f))))
+ (call/cc
+  (lambda (k)
+   (set! backtrack-points
+      (cons (lambda () (k (g))) backtrack-points))
+   (f))))
 ```
 
 This implements chronological backtracking, as in Prolog.
@@ -935,11 +849,9 @@ reset can be defined quite easily using `call/cc`.
 The trick is to capture a continuation that is at the top level and save it away for future use.
 The following expression, evaluated at the top level, saves the appropriate continuation in the value of reset:
 
-`(call/cc (lambda (cc) (set!
-reset (lambda ()`
-
 ```lisp
-                                (cc "Back to top level")))))
+(call/cc (lambda (cc) (set! reset (lambda ()
+                (cc "Back to top level")))))
 ```
 
 **Exercise 22.2 [m]** Can you implement `call/cc` in Common Lisp?
@@ -991,38 +903,33 @@ One important change is that Scheme procedures are implemented as Lisp functions
 
 ```lisp
 (defun interp (x env cc)
-  "Evaluate the expression x in the environment env,
-  and pass the result to the continuation cc."
-  (cond
-    ((symbolp x) (funcall cc (get-var x env)))
-    ((atom x) (funcall cc x))
-    ((scheme-macro (first x))
-      (interp (scheme-macro-expand x) env cc))
-    ((case (first x)
-          (QUOTE (funcall cc (second x)))
-          (BEGIN (interp-begin (rest x) env cc))
-(SET!    (interp (third x) env
-                    #'(lambda (val)
-```
-
-`                          (funcall cc (set-var!
-(second x)`
-
-```lisp
-                                                                        val env)))))
-(IF      (interp (second x) env
-                    #'(lambda (pred)
-                          (interp (if pred (third x) (fourth x))
-                                env cc))))
+ "Evaluate the expression x in the environment env,
+ and pass the result to the continuation cc."
+ (cond
+  ((symbolp x) (funcall cc (get-var x env)))
+  ((atom x) (funcall cc x))
+  ((scheme-macro (first x))
+   (interp (scheme-macro-expand x) env cc))
+  ((case (first x)
+     (QUOTE (funcall cc (second x)))
+     (BEGIN (interp-begin (rest x) env cc))
+(SET!  (interp (third x) env
+          #'(lambda (val)
+             (funcall cc (set-var! (second x)
+                                    val env)))))
+(IF   (interp (second x) env
+          #'(lambda (pred)
+             (interp (if pred (third x) (fourth x))
+                env cc))))
 (LAMBDA (let ((parms (second x))
-                  (code (maybe-add 'begin (rest2 x))))
-              (funcall
-                cc
-                #'(lambda (cont &rest args)
-                    (interp code
-                              (extend-env parms args env)
-                              cont)))))
-(t      (interp-call x env cc))))))
+         (code (maybe-add 'begin (rest2 x))))
+       (funcall
+        cc
+        #'(lambda (cont &rest args)
+          (interp code
+               (extend-env parms args env)
+               cont)))))
+(t   (interp-call x env cc))))))
 ```
 
 A few auxiliary functions are defined, in the same continuation-passing style:
@@ -1098,7 +1005,8 @@ A programmer on the project, Steve Russell, saw the paper, and, according to McC
 
 > Steve Russell said, look, why don't I program this `eval` and-you remember the interpreter-and I said to him, ho, ho, you're confusing theory with practice, this `eval` is intended for reading not for computing.
 But he went ahead and did it.
-That is, he compiled the `eval` in my paper into 704 machine code fixing bugs and then advertised this as a Lisp interpreter, which it certainly was.[3](#fn0020)
+That is, he compiled the `eval` in my paper into 704 machine code fixing bugs and then advertised this as a Lisp interpreter, which it certainly was.<a id="tfn22-3"></a><sup>[3](#fn22-3)</sup>
+
 
 So the first Lisp interpreter was the result of a programmer ignoring his boss's advice.
 The first compiler was for the Lisp 1.5 system ([McCarthy et al.
@@ -1111,7 +1019,7 @@ The more modern view of a lexically scoped Lisp was documented in an influential
 His papers "Lambda: the ultimate goto" and "Compiler optimization based on viewing lambda as rename plus goto" describe properly tail-recursive interpreters and compilers.
 
 The Scheme dialect was invented by Gerald Sussman and Guy Steele around 1975 (see their MIT AI Memo 349).
-The *Revised*4*Report on the Algorithmic Language Scheme* ([Clinger et al.
+The *Revised*<sup>4</sup> *Report on the Algorithmic Language Scheme* ([Clinger et al.
 1991](B9780080571157500285.xhtml#bb0205)) is the definitive reference manual for the current version of Scheme.
 
 [Abelson and Sussman (1985)](B9780080571157500285.xhtml#bb0010) is probably the best introduction to computer science ever written.
@@ -1128,10 +1036,10 @@ The `amb` operator for nondeterministic choice was proposed by [John McCarthy (1
 **Exercise  22.5 [m]** While Scheme does not provide full-blown support for optional and keyword arguments, it does support rest parameters.
 Modify the interpreter to support the Scheme syntax for rest parameters:
 
-| Scheme                     | Common Lisp                       |
-|----------------------------|-----------------------------------|
-| (`lambda x`*body*)         | (`lambda` (`&rest x`) *body*)     |
-| (`lambda (x y . z)`*body*) | (`lambda` (`x y &rest z`) *body*) |
+| Scheme                      | Common Lisp                       |
+|-----------------------------|-----------------------------------|
+| (`lambda x` *body*)         | (`lambda` (`&rest x`) *body*)     |
+| (`lambda (x y . z)` *body*) | (`lambda` (`x y &rest z`) *body*) |
 
 **Exercise  22.6 [h]** The representation of environments is somewhat wasteful.
 Currently it takes 3*n* cons cells to represent an environment with *n* variables.
@@ -1182,14 +1090,9 @@ Here is an example:
 
 ```lisp
 (define (length l)
-  (define (len l n)
-```
-
-`    (if (null?
-l) n (len (cdr l) (+ n 1))))`
-
-```lisp
-  (len l 0))
+ (define (len l n)
+  (if (null? l) n (len (cdr l) (+ n 1))))
+ (len l 0))
 ```
 
 The internal definition of len is interpreted not as defining a global name but rather as defining a local name as if with `letrec`.
@@ -1197,14 +1100,9 @@ The above definition is equivalent to:
 
 ```lisp
 (define (length l)
-  (letrec ((len (lambda (l n)
-```
-
-`                      (if (null?
-l) n (len (cdr l) (+ n 1))))))`
-
-```lisp
-    (len l 0)))
+ (letrec ((len (lambda (l n)
+           (if (null? l) n (len (cdr l) (+ n 1))))))
+  (len l 0)))
 ```
 
 Make changes to the interpreter to allow this kind of internal definition.
@@ -1321,34 +1219,29 @@ We'd also need to modify the printing routines to print just `old` whenever they
 
 ```lisp
 (def-scheme-macro let (vars &rest body)
-  (if (symbolp vars)
-        ;; named let
-        (let ((f vars) (vars (first body)) (body (rest body)))
-          '(letrec ((,f (lambda ,(mapcar #'first vars) .,body)))
-                (,f .,(mapcar #'second vars))))
-        ;; "regular" let
-        '((lambda ,(mapcar #'first vars) . ,body)
-```
-
-`          .
-,(mapcar #'second vars)))))`
-
-```lisp
+ (if (symbolp vars)
+    ;; named let
+    (let ((f vars) (vars (first body)) (body (rest body)))
+     '(letrec ((,f (lambda ,(mapcar #'first vars) .,body)))
+        (,f .,(mapcar #'second vars))))
+    ;; "regular" let
+    '((lambda ,(mapcar #'first vars) . ,body)
+     . ,(mapcar #'second vars)))))
 (def-scheme-macro cond (&rest clauses)
-  (cond ((null clauses) nil)
-        ((length=1 (first clauses))
-         `(or ,(first clauses) (cond .,(rest clauses))))
-        ((starts-with (first clauses) 'else)
-         `(begin .,(rest (first clauses))))
-        ((eq (second (first clauses)) '=>)
-            (assert (= (length (first clauses)) 3))
-            (let ((var (gensym)))
-            '(let ((,var ,(first (first clauses))))
-                (if ,var (,(third (first clauses)) ,var)
-                          (cond .,(rest clauses))))))
-        (t `(if ,(first (first clauses))
-                (begin .,(rest (first clauses)))
-                (cond .,(rest clauses))))))
+ (cond ((null clauses) nil)
+     ((length=1 (first clauses))
+      '(or ,(first clauses) (cond .,(rest clauses))))
+     ((starts-with (first clauses) 'else)
+      '(begin .,(rest (first clauses))))
+     ((eq (second (first clauses)) '=>)
+      (assert (= (length (first clauses)) 3))
+      (let ((var (gensym)))
+      '(let ((,var ,(first (first clauses))))
+        (if ,var (,(third (first clauses)) ,var)
+             (cond .,(rest clauses))))))
+     (t '(if ,(first (first clauses))
+          (begin .,(rest (first clauses)))
+          (cond .,(rest clauses)))))))
 ```
 
 **Answer 22.10** It is easy to define `lambda` as a macro, eliminating the need for `#'(lambda ...)`:
@@ -1374,13 +1267,12 @@ Also, this approach would not interact properly with `flet` and `labels`.
 
 ----------------------
 
-[1](#xfn0010) One writes `numberp` because there is no hyphen in `number` but `random-state-p` because there is a hyphen in `random-state`.
+<a id="fn22-1"></a><sup>[1](#tfn22-1)</sup>
+One writes `numberp` because there is no hyphen in `number` but `random-state-p` because there is a hyphen in `random-state`.
 However, `defstruct` concatenates `-p` in all its predicates, regardless of the presence of a hyphen in the structure's name.
-!!!(p) {:.ftnote1}
 
-[2](#xfn0015) although inefficient
-!!!(p) {:.ftnote1}
+<a id="fn22-2"></a><sup>[2](#tfn22-2)</sup>
+although inefficient
 
-[3](#xfn0020) McCarthy's words from a talk on the history of Lisp, 1974, recorded by [Stoyan (1984)](B9780080571157500285.xhtml#bb1205).
-!!!(p) {:.ftnote1}
-
+<a id="fn22-3"></a><sup>[3](#tfn22-3)</sup>
+McCarthy's words from a talk on the history of Lisp, 1974, recorded by [Stoyan (1984)](B9780080571157500285.xhtml#bb1205).

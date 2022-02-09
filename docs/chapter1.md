@@ -2,7 +2,7 @@
 ## Introduction to Lisp
 
 > You think you know when you learn, are more sure when you can write, even more when you can teach, but certain when you can program.
-
+>
 > -Alan Perlis  
 > Yale University computer scientist
 
@@ -48,7 +48,7 @@ It turns out that the Lisp convention for arithmetic expressions is slightly dif
 This is called *prefix notation.*
 
 ```lisp
-> (+  2 2)
+> (+ 2 2)
 4
 >
 ```
@@ -62,7 +62,7 @@ Of course, with symbols like + and 4 there is no difference.
 To save space on the page, the output will sometimes be shown on the same line as the input, separated by an arrow (=>), which can be read as "evaluates to," and can also be thought of as standing for the return or enter key that the user presses to complete the input:
 
 ```lisp
-> (+  2 2) => 4
+> (+ 2 2) => 4
 ```
 
 One advantage of parenthesized prefix notation is that the parentheses clearly mark the beginning and end of an expression.
@@ -88,7 +88,7 @@ We will see below that the actual Lisp evaluation rule is a little more complica
 Sometimes programmers who are familiar with other languages have preconceptions that make it difficult for them to learn Lisp.
 For them, three points are worth stressing here.
 First, many other languages make a distinction between statements and expressions.
-An expression, like `2 + 2`, has a value, but a statement, like `x  = 2 + 2`, does not.
+An expression, like `2 + 2`, has a value, but a statement, like `x = 2 + 2`, does not.
 Statements have effects, but they do not return values.
 In Lisp, there is no such distinction: every expression returns a value.
 It is true that some expressions have effects, but even those expressions also return values.
@@ -97,10 +97,10 @@ Second, the lexical rules for Lisp are much simpler than the rules for other lan
 In particular, there are fewer punctuation characters: only parentheses, quote marks (single, double, and backward), spaces, and the comma serve to separate symbols from each other.
 Thus, while the statement `y=a*x+3` is analyzed as seven separate tokens in other languages, in Lisp it would be treated as a single symbol.
 <a id="tfn01-1"></a>
-To get a list of tokens, we would have to insert spaces: `(y = a * x + 3)`.[1](#fn01-1)
+To get a list of tokens, we would have to insert spaces: `(y = a * x + 3)`.<sup>[1](#fn01-1)</sup>
 
 Third, while many languages use semicolons to delimit statements, Lisp has no need of semicolons, since expressions are delimited by parentheses.
-Lisp chooses to use semicolons for another purpose-to mark the beginning of a comment, which lasts until the end of the line:
+Lisp chooses to use semicolons for another purpose—to mark the beginning of a comment, which lasts until the end of the line:
 
 ```lisp
 > (+ 2 2) ; this is a comment
@@ -133,12 +133,12 @@ This is not what we had in mind.
 The quote mark instructs Lisp to treat the list as a piece of data rather than as a function call:
 
 ```lisp
-> '(Pat Kim) (PAT KIM)
+> '(Pat Kim) => (PAT KIM)
 ```
 
 In other computer languages (and in English), quotes usually come in pairs: one to mark the beginning, and one to mark the end.
 In Lisp, a single quote is used to mark the beginning of an expression.
-Since we always know how long a single expression is-either to the end of an atom or to the matching parenthesis of a list-we don't need an explicit punctuation mark to tell us where the expression ends.
+Since we always know how long a single expression is—either to the end of an atom or to the matching parenthesis of a list—we don't need an explicit punctuation mark to tell us where the expression ends.
 Quotes can be used on lists, as in `'(Pat Kim)`, on symbols as in `'Robin`, and in fact on anything else.
 Here are some examples:
 
@@ -190,7 +190,7 @@ At some point the reader should flip through a reference text to see what's ther
 
 *   Third, note that symbols in Common Lisp are not case sensitive.
 <a id="tfn01-2"></a>
-By that I mean that the inputs `John, john,` and `jOhN` all refer to the same symbol, which is normally printed as `JOHN.`[2](#fn01-2)
+By that I mean that the inputs `John, john,` and `jOhN` all refer to the same symbol, which is normally printed as `JOHN.`<sup>[2](#fn01-2)</sup>
 
 *   Fourth, note that a wide variety of characters are allowed in symbols: numbers, letters, and other punctuation marks like `'+'` or `'!'`
 The exact rules for what constitutes a symbol are a little complicated, but the normal convention is to use symbols consisting mostly of letters, with words separated by a dash `(-)`, and perhaps with a number at the end.
@@ -338,7 +338,7 @@ It is also possible to build up new lists, as these examples show:
 
 The function cons stands for "construct."
 <a id="tfn01-3"></a>
-It takes as arguments an element and a list,[3](#fn01-3) and constructs a new list whose first is the element and whose rest is the original list.
+It takes as arguments an element and a list,<sup>[3](#fn01-3)</sup> and constructs a new list whose first is the element and whose rest is the original list.
 `list` takes any number of elements as arguments and returns a new list containing those elements in order.
 We've already seen `append`, which is similar to `list`; it takes as arguments any number of lists and appends them all together, forming one big list.
 Thus, the arguments to `append` must be lists, while the arguments to `list` may be lists or atoms.
@@ -358,7 +358,7 @@ We can experiment:
 ```
 
 <a id="tfn01-4"></a>
-It turns out that `last` perversely returns a list of the last element, rather than the last element itself.[4](#fn01-4)
+It turns out that `last` perversely returns a list of the last element, rather than the last element itself.<sup>[4](#fn01-4)</sup>
 Thus we need to combine `first` and `last` to pick out the actual last element.
 We would like to be able to save the work we've done, and give it a proper description, like `last-name`.
 We could use `setf` to save the last name of `p`, but that wouldn't help determine any other last name.
@@ -466,6 +466,7 @@ In other words, the `mapcar` call above is equivalent to:
 (list (last-name (first names))
       (last-name (second names))
       (last-name (third names))
+      ...)
 ```
 
 `mapcar`'s name comes from the fact that it "maps" the function across each of the arguments.
@@ -514,7 +515,7 @@ It is a widely used convention among Lisp programmers to mark special variables 
 This is just a convention; in Lisp, the asterisk is just another character that has no particular meaning.
 
 <a id="tfn01-5"></a>
-We next give a new definition for `first-name`, which supersedes the previous definition.[5](#fn01-5)
+We next give a new definition for `first-name`, which supersedes the previous definition.<sup>[5](#fn01-5)</sup>
 This definition says that if the first word of the name is a member of the list of titles, then we want to ignore that word and return the `first-name` of the rest of the words in the name.
 Otherwise, we use the first word, just as before.
 Another built-in function, `member`, tests to see if its first argument is an element of the list passed as the second argument.
@@ -779,7 +780,7 @@ Here are some more examples of the correct use of functions:
 (2 4 6 8 10)
 
 > (mappend #'(lambda (l) (list l (reverse l)))
-           ((1 2 3) (a b c))) =>
+           '((1 2 3) (a b c))) =>
 ((1 2 3) (3 2 1) (A B C) (C B A))
 ```
 
@@ -850,7 +851,7 @@ Note that if `'(Pat Kim)` did not have the quote, it would betreated as a functi
 *   A *symbol* evaluates to the most recent value that has been assigned to the variable named by that symbol.
 Symbols are composed of letters, and possibly digits and, rarely, punctuation characters.
 <a id="tfn01-6"></a>
-To avoid confusion, we will use symbols composed mostly of the letters `a-z` and the `'-'` character, with a few exceptions.[6](#fn01-6)
+To avoid confusion, we will use symbols composed mostly of the letters `a-z` and the `'-'` character, with a few exceptions.<sup>[6](#fn01-6)</sup>
 
 ```lisp
 names
@@ -1042,7 +1043,7 @@ However, Lisp still provides much better access to the interactive features.
 A C interpreter may allow the programmer to type in an expression and have it evaluated immediately, but it will not allow the programmer to write a program that, say, goes through the symbol table and finds all the user-defined functions and prints information on them.
 In C-even interpreted C-the symbol table is just a Cheshire-cat-like invention of the interpreter's imagination that disappears when the program is run.
 <a id="tfn01-7"></a>
-In Lisp, the symbol table is a first-class object[7](#fn01-7) that can be accessed and modified with functions like `read, intern` and `do-symbols`.
+In Lisp, the symbol table is a first-class object<sup>[7](#fn01-7)</sup> that can be accessed and modified with functions like `read, intern` and `do-symbols`.
 Common Lisp offers an unusually rich set of useful tools, including over 700 built-in functions (ANSI Common Lisp has over 900).
 Thus, writing a new program involves more gathering of existing pieces of code and less writing of new code from scratch.
 In addition to the standard functions, Common Lisp implementations usually provide extensions for interacting with the editor, debugger, and window system.
@@ -1058,7 +1059,7 @@ But the flexibility of Lisp goes beyond adding individual constructs.
 Brand new styles of programming can easily be implemented.
 Many AI applications are based on the idea of *rule-based* programming.
 <a id="tfn01-8"></a>
-Another new style is *object-oriented* programming, which has been incorporated with the Common Lisp Object System (CLOS),[8](#fn01-8) a set of macros, functions, and data types that have been integrated into ANSI Common Lisp.
+Another new style is *object-oriented* programming, which has been incorporated with the Common Lisp Object System (CLOS),<sup>[8](#fn01-8)</sup> a set of macros, functions, and data types that have been integrated into ANSI Common Lisp.
 
 To show how far Lisp has come, here's the only sample program given in the *Lisp/MTS Programmer's Guide* (Hafner and Wilcox 1974):
 
@@ -1203,32 +1204,32 @@ Here are three versions:
 
 ----------------------
 
-<a id="fn01-1"></a>
-[1](#tfn01-1) This list of symbols is not a legal Lisp assignment statement, but it is a Lisp data object.
+<a id="fn01-1"></a><sup>[1](#tfn01-1)</sup>
+This list of symbols is not a legal Lisp assignment statement, but it is a Lisp data object.
 
-<a id="fn01-2"></a>
-[2](#tfn01-2) The variable `*print-case*` controls how symbols will be printed.
+<a id="fn01-2"></a><sup>[2](#tfn01-2)</sup>
+The variable `*print-case*` controls how symbols will be printed.
 By default, the value of this variable is :`upcase`, but it can be changed to :`downcase` or `:capitalize`.
 
-<a id="fn01-3"></a>
-[3](#tfn01-3) Later we will see what happens when the second argument is not a list.
+<a id="fn01-3"></a><sup>[3](#tfn01-3)</sup>
+Later we will see what happens when the second argument is not a list.
 
-<a id="fn01-4"></a>
-[4](#tfn01-4) In ANSI Common Lisp, `last` is defined to return a list of the last *n* elements, where n defaults to 1.
+<a id="fn01-4"></a><sup>[4](#tfn01-4)</sup>
+In ANSI Common Lisp, `last` is defined to return a list of the last *n* elements, where n defaults to 1.
 Thus `(last p) = (last p 1) = (PUBLIC)`,and `(last p 2) = (Q PUBLIC)`.
 This may make the definition of `last` seem less perverse.
 
-<a id="fn01-5"></a>
-[5](#tfn01-5) Just as we can change the value of a variable, we can also change the value of a function in Lisp.
+<a id="fn01-5"></a><sup>[5](#tfn01-5)</sup>
+Just as we can change the value of a variable, we can also change the value of a function in Lisp.
 It is not necessary to recompile everything when a change is made, as it would be in other languages.
 
-<a id="fn01-6"></a>
-[6](#tfn01-6) For example, symbols that denote so-called *special* variables usually begin and end in asterisks.
+<a id="fn01-6"></a><sup>[6](#tfn01-6)</sup>
+For example, symbols that denote so-called *special* variables usually begin and end in asterisks.
 Also, note that I did not hesitate to use the symbol `won!` on page 11.
 
-<a id="fn01-7"></a>
-[7](#tfn01-7) Actually, there can be several symbol tables.
+<a id="fn01-7"></a><sup>[7](#tfn01-7)</sup>
+Actually, there can be several symbol tables.
 They are known as *packages* in Common Lisp.
 
-<a id="fn01-8"></a>
-[8](#tfn01-8) Pronounced "see-loss." An alternate pronunciation, "klaus," seems to be losing favor.
+<a id="fn01-8"></a><sup>[8](#tfn01-8)</sup>
+Pronounced "see-loss." An alternate pronunciation, "klaus," seems to be losing favor.

@@ -28,24 +28,18 @@ However, remember that while the original was state-of-the-art as of 1964, AI ha
 The description of STUDENT is:
 
 1.  Break the input into phrases that will represent equations.
-!!!(p) {:.numlist}
 
 2.  Break each phrase into a pair of phrases on either side of the  =  sign.
-!!!(p) {:.numlist}
 
 3.  Break these phrases down further into sums and products, and so on, until finally we bottom out with numbers and variables.
 (By "variable" here, I mean "mathematical variable," which is distinct from the idea of a "pattern-matching variable" as used in `pat-match` in [chapter 6](B9780080571157500066.xhtml)).
-!!!(p) {:.numlist}
 
 4.  Translate each English phrase into a mathematical expression.
 We use the idea of a rule-based translator as developed for ELIZA.
-!!!(p) {:.numlist}
 
 5.  Solve the resulting mathematical equations, coming up with a value for each unknown variable.
-!!!(p) {:.numlist}
 
 6.  Print the values of all the variables.
-!!!(p) {:.numlist}
 
 For example, we might have a pattern of the form (`If ?x then ?y`), with an associated response that says that `?x` and `?y` will each be equations or lists of equations.
 Applying the pattern to the input above, `?y` would have the value (`what is the number of customers Tomgets`).
@@ -61,7 +55,7 @@ With that in mind, we can define a list of pattern-response rules corresponding 
 The structure definition for a rule is repeated here, and the structure `exp`, an expression, is added.
 `lhs` and `rhs` stand for left-and right-hand side, respectively.
 Note that the constructor `mkexp` is defined as a constructor that builds expressions without taking keyword arguments.
-In general, the notation (`:constructor`*fn args*) creates a constructor function with the given name and argument list.[1](#fn0015)
+In general, the notation (`:constructor` *fn args*) creates a constructor function with the given name and argument list.<a id="tfn07-1"></a><sup>[1](#fn07-1)</sup>
 
 ```lisp
 (defstruct (rule (:type list)) pattern response)
@@ -168,7 +162,6 @@ Finally, the function `solve-equations` does the mathematics and prints the solu
   (solve-equations
     (create-list-of-equations
       (translate-to-expression (remove-if #'noise-word-p words)))))
-
 ```
 
 The function `translate-to-expression` is a rule-based translator.
@@ -651,33 +644,26 @@ Make sure you handle special characters properly:
 
 (a)  The price of a radio is 69.70 dollars.
 If this price is 15% less than the marked The number of soldiers the Russians have is one half of the number of guns
-!!!(p) {:.numlist1}
 
 (b)  The number of soldiers the Russians have is one half of the number of guns they have.
 The number of guns they have is 7000.
 What is the number of soldiers they have?
-!!!(p) {:.numlist1}
 
 (c)  If the number of customers Tom gets is twice the square of 20 % of the number of advertisements he runs, and the number of advertisements is 45, and the profit Tom receives is 10 times the number of customers he gets, then what is the profit?
-!!!(p) {:.numlist1}
 
 (d)  The average score is 73.
 The maximum score is 97.
 What is the square of the difference between the average and the maximum?
-!!!(p) {:.numlist1}
 
 (e)  Tom is twice Mary's age, and Jane's age is half the difference between Mary and Tom.
 If Mary is 18 years old, how old is Jane?
-!!!(p) {:.numlist1}
 
 (f)  What is 4  +  5* 14/7?
-!!!(p) {:.numlist1}
 
 (g)  *x  x  b  =  c  +  d.
 b  x  c  =  x.
 x  =  b  +  b.
 b  =  5.*
-!!!(p) {:.numlist1}
 
 **Exercise  7.7 [h]**`Student's` infix-to-prefix rules account for the priority of operators properly, but they don't handle associativity in the standard fashion.
 For example, (`12 - 6 - 3`) translates to (`- 12 (- 6 3)`) or `9`, when the usual convention is to interpret this as (`- (- 12 6) 3`) or `3`.
@@ -708,14 +694,16 @@ Generate a similar characterization for this version of the program.
             (princ x))))
 ```
 
-**Answer 7.9**`one-unknown` is very inefficient because it searches each subcomponent of an expression twice.
+**Answer 7.9** `one-unknown` is very inefficient because it searches each subcomponent of an expression twice.
 For example, consider the equation:
 
-`(= (+ (+`  x  `2) (+  3 4)) (+ (+  5 6) (+  7 8)))`
+```lisp
+(= (+ (+ x 2) (+ 3 4)) (+ (+ 5 6) (+ 7 8)))
+```
 
 To decide if this has one unknown, `one-unknown` will call `no-unknown` on the left-hand side, and since it fails, call it again on the right-hand side.
 Although there are only eight atoms to consider, it ends up calling `no-unknown 17` times and `one-unknown 4` times.
-In general, for a tree of depth *n*, approximately 2*n* calls to `no-unknown` are made.
+In general, for a tree of depth *n*, approximately 2<sup>*n*</sup> calls to `no-unknown` are made.
 This is clearly wasteful; there should be no need to look at each component more than once.
 
 The following version uses an auxiliary function, `find-one-unknown,` that has an accumulator parameter, `unknown.` This parameter can take on three possible values: nil, indicating that no unknown has been found; or the single unknown that has been found so far; or the number 2 indicating that two unknowns have been found and therefore the final result should be nil.
@@ -749,7 +737,6 @@ The function `find-one-unknown` has four cases: (1) If we have already found two
 ```
 
 ----------------------
-
-[1](#xfn0015)[Page 316](B9780080571157500108.xhtml#p316) of *Common Lisp the Language* says, "Because a constructor of this type operates By Order of Arguments, it is sometimes known as a BOA constructor."
-!!!(p) {:.ftnote1}
+<a id="fn07-1"></a><sup>[1](#tfn07-1)</sup>
+Page 316 of *Common Lisp the Language* says, "Because a constructor of this type operates By Order of Arguments, it is sometimes known as a BOA constructor."
 

@@ -735,7 +735,7 @@ Here are the necessary abbreviations:
 
 The next step is to provide abbreviations for some of the common verb complement lists:
 
-``lisp
+```lisp
 (abbrev v/intrans   ((agt 1 (NP ?))))
 (abbrev v/trans     ((agt 1 (NP ?)) (obj 2 (NP ?))))
 (abbrev v/ditrans   ((agt 1 (NP ?)) (goal 2 (NP ?)) (obj 3 (NP ?))))
@@ -1021,7 +1021,7 @@ Here is a fairly complete list of prepositions:
 ## 21.12 Supporting the Lexicon
 
 This section describes the implementation of the macros `word`, `verb, noun`, and `abbrev.` Abbreviations are stored in a hash table.
-The macro `abbr`e`v` and the functions `get-abbrev` and `clear-abbrevs` define the interface.
+The macro `abbrev` and the functions `get-abbrev` and `clear-abbrevs` define the interface.
 We will see how to expand abbreviations later.
 
 ```lisp
@@ -1420,10 +1420,8 @@ A disambiguation procedure should be equipped to weed out such duplicates.
 Here we will concentrate on references that provide:
 
 1.  A comprehensive grammar of English.
-!!!(p) {:.numlist}
 
 2.  A complete implementation.
-!!!(p) {:.numlist}
 
 There are a few good textbooks that partially address both issues.
 Both [Winograd (1983)](B9780080571157500285.xhtml#bb1395) and [Allen (1987)](B9780080571157500285.xhtml#bb0030) do a good job of presenting the major grammatical features of English and discuss implementation techniques, but they do not provide actual code.
@@ -1495,5 +1493,4 @@ Contrast this to "The truck, which has 4-wheel drive, costs $5000." Here the rel
 
 Part V
 The Rest of Lisp
-!!!(p) {:.parttitle}
 

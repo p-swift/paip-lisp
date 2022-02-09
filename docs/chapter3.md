@@ -56,7 +56,7 @@ For example, if your code is trying to find an element in a list, you should use
 
 Sometimes, however, the maxims are in conflict, and experience will tell you which one to prefer.
 <a id="tfn03-1"></a>
-Consider the following two ways of placing a new key/value pair on an association list:[[1]](#fn03-1)
+Consider the following two ways of placing a new key/value pair on an association list:<sup>[1](#fn03-1)</sup>
 
 ```lisp
 (push (cons key val) a-list)
@@ -203,7 +203,7 @@ Here is a table of equivalences:
 | `(or` *a b c*)                   | `(if` *a a* `(if` *b b c*))         | `(cond (a)` (*b*) (*c*))           |
 | `(*case*` *a* (*b c*) `*(t x*))` | `(if (eql` *a 'b*) *c x*)           | `(cond ((eql `*a 'b*) *c*) (*tx*)) |
 
-It is considered poor style to use `and` and `or` for anything other than testing a logical condition, `when, unless,` and `if` can all be used for taking conditional action.
+It is considered poor style to use `and` and `or` for anything other than testing a logical condition, `when`, `unless,` and `if` can all be used for taking conditional action.
 For example:
 
 ```lisp
@@ -217,7 +217,7 @@ For example:
   (princ "N is large."))    ; Good style.
 ```
 
-When the main purpose is to return a value rather than take action, `cond` and `if` (with explicit `nil` in the else case) are preferred over when and `unless`, which implicitly return `nil` in the else case, `when` and `unless` are preferred when there is only one possibility, `if` (or, for some people, `cond)` when there are two, and `cond` when there are more than two:
+When the main purpose is to return a value rather than take action, `cond` and `if` (with explicit `nil` in the else case) are preferred over `when` and `unless`, which implicitly return `nil` in the else case, `when` and `unless` are preferred when there is only one possibility, `if` (or, for some people, `cond)` when there are two, and `cond` when there are more than two:
 
 ```lisp
 (defun tax-bracket (income)
@@ -381,7 +381,7 @@ The expansion of the `incf` form binds a temporary variable so that the sort is 
   "Increment the WINS for the player with highest score."
   (incf (player-wins (first (sort players #'>
                                   :key #'player-score)))))
-=
+
 (defun determine-winner (players)
    "Increment the WINS for the player with highest score."
    (let ((temp (first (sort players #'> :key #'player-score))))
@@ -612,7 +612,7 @@ The second table lists functions that have `-if` and `-if-not` versions and also
 | `(find 2 y)`         | => `2`       | find first element that matches       |
 | `(position 'a x)`    | => 0         | find index of element in sequence     |
 | `(reduce #'+ y)`     | => `6`       | apply function to successive elements |
-| `(remove 2 y)`       | => (1 `3)`   | like `delete`, but makes a new copy   |
+| `(remove 2 y)`       | => `(1 3)`   | like `delete`, but makes a new copy   |
 | `(substitute 4 2 y)` | => `(1 4 3)` | replace elements with new ones        |
 
 ### Repetition through Recursion
@@ -908,7 +908,7 @@ The more complicated ones are explained more thoroughly when they are used.
 | []()             |                        |                                                |
 |------------------|------------------------|------------------------------------------------|
 | `(first x)`      | => `a`                 | first element of a list                        |
-| `(second x)`     | `=> b`                 | second element of a list                       |
+| `(second x)`     | => `b`                 | second element of a list                       |
 | `(third x)`      | => `c`                 | third element of a list                        |
 | `(nth 0 x)`      | => `a`                 | nth element of a list, `0`-based               |
 | `(rest x)`       | => `(b c)`             | all but the first element                      |
@@ -920,7 +920,7 @@ The more complicated ones are explained more thoroughly when they are used.
 | `(cons 0 y)`     | => `(0 1 2 3)`         | add to front of list                           |
 | `(append x y)`   | => `(a b c 1 2 3)`     | append together elements                       |
 | `(list x y)`     | => `((a b c) (1 2 3))` | make a new list                                |
-| `(list* 1 2 x)`  | => `(1 2 a b` c)       | append last argument to others                 |
+| `(list* 1 2 x)`  | => `(1 2 a b c)`       | append last argument to others                 |
 | `(null nil)`     | => `T`                 | predicate is true of the empty list            |
 | `(null x)`       | => `nil`               | ... and false for everything else              |
 | `(listp x)`      | => `T`                 | predicate is true of any list, including `nil` |
@@ -928,7 +928,7 @@ The more complicated ones are explained more thoroughly when they are used.
 | `(consp x)`      | => `t`                 | predicate is true of non-nil lists             |
 | `(consp nil)`    | => `nil`               | ... and false for atoms, including `nil`       |
 | `(equal x x)`    | => `t`                 | true for lists that look the same              |
-| `(equal x y)`    | `nil`                  | ... and false for lists that look different    |
+| `(equal x y)`    | => `nil`                  | ... and false for lists that look different    |
 | `(sort y #'>)`   | => `(3 2 1)`           | sort a list according to a comparison function |
 | `(subseq x 1 2)` | => `(B)`               | subsequence with given start and end points    |
 
@@ -1091,8 +1091,9 @@ A third way to represent table is with *property lists.*
 A property list is a list of alternating key/value pairs.
 Property lists (sometimes called p-lists or plists) and association lists (sometimes called a-lists or alists) are similar:
 
-> `a-list:` ((*key*<sub>1</sub> . *val*<sub>1</sub>) (*key*<sub>2</sub> . *val*<sub>2</sub>) ... (*key*<sub>n</sub> . *val*<sub>n</sub>))  
-> `p-list: (`*key*<sub>1</sub> *val*<sub>1</sub> *key*<sub>2</sub> *val*<sub>2</sub> ... *key*<sub>n</sub> *val*<sub>n</sub>)
+`a-list: ((`*key*<sub>1</sub> . *val*<sub>1</sub>) (*key*<sub>2</sub> .
+*val*<sub>2</sub>) ... (*key<sub>n</sub> . val<sub>n</sub>*))
+`p-list: (`*key*<sub>1</sub> *val*<sub>1</sub> *key*<sub>2</sub> *val*<sub>2</sub> ... *key<sub>n</sub> val<sub>n</sub>*)
 
 Given this representation, there is little to choose between a-lists and p-lists.
 They are slightly different permutations of the same information.
@@ -1183,11 +1184,11 @@ Note that the order of old and new in the a-list for `sublis` is reversed from t
 The name `sublis` is uncharacteristically short and confusing; a better name would be `subst-list`.
 
 ```lisp
-> (subst 'new 'old '(old ((very old))) (NEW ((VERY NEW)))
+> (subst 'new 'old '(old ((very old)))) => (NEW ((VERY NEW)))
 
-> (sublis '((old . new)) '(old ((very old))))` => `(NEW ((VERY NEW)))
+> (sublis '((old . new)) '(old ((very old)))) => (NEW ((VERY NEW)))
 
-> (subst 'new 'old 'old) => 'NEW`
+> (subst 'new 'old 'old) => NEW
 
 (defun english->french (words)
   (sublis '((are . va) (book . libre) (friend . ami)
@@ -1286,7 +1287,7 @@ In mathematics, applying an operator to *x* can have no effect on the value of *
 
 In Lisp, some functions *are* able to take effect beyond just computing the result.
 <a id="tfn03-2"></a>
-These "functions" are not functions in the mathematical sense,[[2]](#fn03-2) and in other languages they are known as "procedures."
+These "functions" are not functions in the mathematical sense,<sup>[2](#fn03-2)</sup> and in other languages they are known as "procedures."
 Of course, most of the Lisp functions *are* true mathematical functions, but the few that are not can cause great problems.
 They can also be quite useful in certain situations.
 For both reasons, they are worth knowing about.
@@ -1503,7 +1504,7 @@ There are 26 different format directives.
 Here's a more complex example:
 
 ```lisp
-> (let ((numbers '(1234 5)))
+> (let ((numbers '(1 2 3 4 5)))
     (format t "~&~{~r~^ plus ~} is ~@r"
             numbers (apply #'+ numbers)))
 one plus two plus three plus four plus five is XV
@@ -2105,7 +2106,7 @@ The term *keyword* is used differently in Lisp than in many other languages.
 For example, in Pascal, keywords (or *reserved* words) are syntactic symbols, like `if, else, begin`, and `end`.
 In Lisp we call such symbols *special form operators* or just *special forms.*
 <a id="tfn03-3"></a>
-Lisp keywords are symbols that happen to reside in the keyword package.[[3]](#fn03-3)
+Lisp keywords are symbols that happen to reside in the keyword package.<sup>[3](#fn03-3)</sup>
 They have no special syntactic meaning, although they do have the unusual property of being self-evaluating: they are constants that evaluate to themselves, unlike other symbols, which evaluate to whatever value was stored in the variable named by the symbol.
 Keywords also happen to be used in specifying `&key` argument lists, but that is by virtue of their value, not by virtue of some syntax rule.
 It is important to remember that keywords are used in the function call, but normal nonkeyword symbols are used as parameters in the function definition.
@@ -2449,11 +2450,11 @@ or, with an ANSI-compliant Common Lisp, you can specify a `:` key
 
 ----------------------
 
-<a id="fn03-1"></a>
-[[1]](#tfn03-1) Association lists are covered in section 3.6.
+<a id="fn03-1"></a><sup>[1](#tfn03-1)</sup>
+Association lists are covered in section 3.6.
 
-<a id="fn03-2"></a>
-[[2]](#tfn03-2) In mathematics, a function must associate a unique output value with each input value.
+<a id="fn03-2"></a><sup>[2](#tfn03-2)</sup>
+In mathematics, a function must associate a unique output value with each input value.
 
-<a id="fn03-3"></a>
-[[3]](#tfn03-3) A *package* is a symbol table: a mapping between strings and the symbols they name.
+<a id="fn03-3"></a><sup>[3](#tfn03-3)</sup>
+A *package* is a symbol table: a mapping between strings and the symbols they name.

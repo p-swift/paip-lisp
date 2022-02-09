@@ -27,10 +27,10 @@ Thus, our system is not canonical.
 Most of the problems of the previous section stem from the lack of a canonical form.
 
 Adhering to canonical form imposes grave restrictions on the representation.
-For example, *x2*-  1 and (*x*- 1)(*x* + 1) are equal, so they must be represented identically.
+For example, *x<sup>2</sup>* - 1 and (*x* - 1)(*x* + 1) are equal, so they must be represented identically.
 One way to insure this is to multiply out all factors and collect similar terms.
-So (*x*- 1)(*x* + 1) is *x2*- *x* + *x*- 1, which simplifies to *x2*-  1, in whatever the canonical internal form is.
-This approach works fine for *x2*- 1, but for an expression like (*x*- 1)1000, multiplying out all factors would be quite time- (and space-) consuming.
+So (*x* - 1)(*x* + 1) is *x<sup>2</sup>* - *x* + *x* - 1, which simplifies to *x<sup>2</sup>* - 1, in whatever the canonical internal form is.
+This approach works fine for *x<sup>2</sup>* - 1, but for an expression like (*x* - 1)<sup>1000</sup>, multiplying out all factors would be quite time- (and space-) consuming.
 It is hard to find a canonical form that is ideal for all problems.
 The best we can do is choose one that works well for the problems we are most likely to encounter.
 
@@ -39,24 +39,20 @@ The best we can do is choose one that works well for the problems we are most li
 This section will concentrate on a canonical form for *polynomials.* Mathematically speaking, a polynomial is a function (of one or more variables) that can be computed using only addition and multiplication.
 We will speak of a polynomial's *main variable, coefficients,* and *degree.* In the polynomial:
 
-5xx3+bxx2+cxx+1
-
-![si1_e](images/chapter15/si1_e.gif)
+<img src="images/chapter15/si1_e.svg"
+onerror="this.src='images/chapter15/si1_e.png'; this.onerror=null;"
+alt="5 \times x^{3} +b \times x^{2} +c \times x + 1">
 
 the main variable is *x,* the degree is 3 (the highest power of *x*), and the coefficients are 5, *b, c* and 1.
 We can define an input format for polynomials as follows:
 
 1.  Any Lisp number is a polynomial.
-!!!(p) {:.numlist}
 
 2.  Any Lisp symbol is a polynomial.
-!!!(p) {:.numlist}
 
 3.  If *p* and *q* are polynomials, so are (*p + q*) and (*p * q*).
-!!!(p) {:.numlist}
 
 4.  If *p* is a polynomial and *n* is a positive integer, then (*p* ^ *n*) is a polynomial.
-!!!(p) {:.numlist}
 
 However, the input format cannot be used as the canonical form, because it would admit both `(x + y)` and `(y + x)`, and both `4` and `(2 + 2)`.
 
@@ -72,12 +68,14 @@ This may be surprising, and we don't have space here to explain exactly why it i
 Then "converting to canonical form" would be the same as "running a program." But it is an elementary result of computability theory that it is in general impossible to determine the result of running an arbitrary program (this is known as the halting problem).
 Thus, it is not surprising that it is impossible to canonicalize complex expressions.
 
-Our task is to convert a polynomial as previously defined into some canonical form.[1](#fn0015) Much of the code and some of the commentary on this format and the routines to manipulate it was written by Richard Fateman, with some enhancements made by Peter Klier.
+Our task is to convert a polynomial as previously defined into some canonical form.<a id="tfn15-1"></a><sup>[1](#fn15-1)</sup>
+Much of the code and some of the commentary on this format and the routines to manipulate it was written by Richard Fateman, with some enhancements made by Peter Klier.
 
 The first design decision is to assume that we will be dealing mostly with *dense* polynomials, rather than *sparse* ones.
-That is, we expect most of the polynomials to be like *ax*3*+ bx*2*+ cx* + *d,* not like *ax*100*+ bx*50 + *c.* For dense polynomials, we can save space by representing the main variable (*x* in these examples) and the individual coefficients (*a*, *b*, *c*, and *d* in these examples) explicitly, but representing the exponents only implicitly, by position.
+That is, we expect most of the polynomials to be like *ax*<sup>3</sup> + *bx*<sup>2</sup> + *cx* + *d,* not like *ax*<sup>100</sup>+ *bx*<sup>50</sup> + *c.*
+For dense polynomials, we can save space by representing the main variable (*x* in these examples) and the individual coefficients (*a*, *b*, *c*, and *d* in these examples) explicitly, but representing the exponents only implicitly, by position.
 Vectors will be used instead of lists, to save space and to allow fast access to any element.
-Thus, the representation of 5*x*3+ 10*x*2+ 20*x +* 30 will be the vector:
+Thus, the representation of 5*x*<sup>3</sup> + 10*x*<sup>2</sup> + 20*x* + 30 will be the vector:
 
 ```lisp
 #(x 30 20 10 5)
@@ -86,18 +84,18 @@ Thus, the representation of 5*x*3+ 10*x*2+ 20*x +* 30 will be the vector:
 The main variable, *x*, is in the 0th element of the vector, and the coefficient of the *i*th power of *x* is in element *i* + 1 of the vector.
 A single variable is represented as a vector whose first coefficient is 1, and a number is represented as itself:
 
-| []()              |                                        |
-|-------------------|----------------------------------------|
-| `#(x 30 20 10 5)` | represents 5*x*3 + 10*x*2 + 20*x* + 30 |
-| `#(x 0 1)`        | represents *x*                         |
-| `5`               | represents 5                           |
+| []()              |                                                              |
+|-------------------|--------------------------------------------------------------|
+| `#(x 30 20 10 5)` | represents 5*x*<sup>3</sup> + 10*x*<sup>2</sup> + 20*x* + 30 |
+| `#(x 0 1)`        | represents *x*                                               |
+| `5`               | represents 5                                                 |
 
 The fact that a number is represented as itself is a possible source of confusion.
 The number 5, for example, is a polynomial by our mathematical definition of polynomials.
 But it is represented as 5, not as a vector, so `(typep 5 'polynomial)` will be false.
 The word "polynomial" is used ambiguously to refer to both the mathematical concept and the Lisp type, but it should be clear from context which is meant.
 
-A glossary for the canonical simplifier program is given in [figure  15.1](#f0010).
+A glossary for the canonical simplifier program is given in [figure 15.1](#f0010).
 
 | []()                                                        |
 |-------------------------------------------------------------|
@@ -112,15 +110,11 @@ More details on efficiency issues are given in [Chapter 9](B9780080571157500091.
 
 ```lisp
 (proclaim '(inline main-var degree coef
-```
-
-              `var= var> poly make-poly))`
-
-```lisp
+       var= var> poly make-poly))
 (deftype polynomial () 'simple-vector)
 (defun main-var (p) (svref (the polynomial p) 0))
-(defun coef (p i)  (svref (the polynomial p) (+ i 1)))
-(defun degree (p)  (-(length (the polynomial p)) 2))
+(defun coef (p i) (svref (the polynomial p) (+ i 1)))
+(defun degree (p) (-(length (the polynomial p)) 2))
 ```
 
 We had to make another design decision in defining `coef`, the function to extract a coefficient from a polynomial.
@@ -229,7 +223,7 @@ Here's how to compare variables:
 (defun var> (x y) (string> x y))
 ```
 
-The canonical form of the variable `x` will be `#(x 0 1)`, which is 0 x *x*0 + 1 x *x*1.
+The canonical form of the variable `x` will be `#(x 0 1)`, which is 0 *x*<sup>0</sup> + 1 *x*<sup>1</sup>.
 The canonical form of `(+ x y)` is `#(x #(y 0 1) 1)`.
 It couldn't be `#(y #(x 0 1) 1)`, because then the resulting polynomial would have a coefficient with a lesser main variable.
 The policy of ordering variables assures canonicality, by properly grouping like variables together and by imposing a particular ordering on expressions that would otherwise be commutative.
@@ -345,17 +339,12 @@ First, the exponentiation function:
 
 ```lisp
 (defun poly^n (p n)
+ "Raise polynomial p to the nth power, n>=0."
+ (check-type n (integer 0 *))
+ (cond ((= n 0) (assert (not (eql p 0))) 1)
+   ((integerp p) (expt p n))
+   (t (poly*poly p (poly^n p (- n 1))))))
 ```
-
-  `"Raise polynomial p to the nth power, n>=0."`
-
-  `(check-type n (integer 0 *))`
-
-  `(cond ((= n 0) (assert (not (eql p 0))) 1)`
-
-      `((integerp p) (expt p n))`
-
-      `(t (poly*poly p (poly^n p (- n 1))))))`
 
 ## 15.2 Differentiating Polynomials
 
@@ -396,13 +385,16 @@ The differentiation routine is easy, mainly because there are only two operators
 **Exercise  15.1 [h]** Integrating polynomials is not much harder than differentiating them.
 For example:
 
-&int;ax2+bxdx=ax33+bx22+c.
-
-![si2_e](images/chapter15/si2_e.gif)
+<img src="images/chapter15/si2_e.svg"
+onerror="this.src='images/chapter15/si2_e.png'; this.onerror=null;"
+alt="\int ax^{2} + bx\, dx = \frac {ax^{3}}{3} + \frac {bx^{2}}{2} + c.">
 
 Write a function to integrate polynomials and install it in `prefix->canon`.
 
-**Exercise  15.2 [m]** Add support for *definite* integrals, such as &int;abydx !!!(span) {:.hiddenClass} ![si3_e](images/chapter15/si3_e.gif).
+**Exercise  15.2 [m]** Add support for *definite* integrals, such as
+<img src="images/chapter15/si3_e.svg"
+onerror="this.src='images/chapter15/si3_e.png'; this.onerror=null;"
+alt="\int_{a}^{b} y\, dx">.
 You will need to make up a suitable notation and properly install it in both `infix->prefix` and `prefix->canon`.
 A full implementation of this feature would have to consider infinity as a bound, as well as the problem of integrating over singularises.
 You need not address these problems.
@@ -500,27 +492,14 @@ CANON> (3 * x + y + z + x + 4 * x)
 ((8 * X) + (Y + Z))
 CANON> ((x + 1) ^ 10)
 ((X ^ 10) + (10 * (X ^ 9)) + (45 * (X ^ 8)) + (120 * (X ^ 7))
-```
-
-  `+ (210 * (X ^ 6)) + (252 * (X ^ 5)) + (210 * (X ^ 4))`
-
-  `+ (120 * (X ^ 3)) + (45 * (X ^ 2)) + (10 * X) + 1)`
-
-```lisp
+ + (210 * (X ^ 6)) + (252 * (X ^ 5)) + (210 * (X ^ 4))
+ + (120 * (X ^ 3)) + (45 * (X ^ 2)) + (10 * X) + 1)
 CANON> ((x + 1) ^ 10 + (x - 1) ^ 10)
 ((2 * (X ^ 10)) + (90 * (X ^ 8)) + (420 * (X ^ 6))
-```
-
-  `+ (420 * (X ^ 4)) + (90 * (X ^ 2)) + 2)`
-
-```lisp
+ + (420 * (X ^ 4)) + (90 * (X ^ 2)) + 2)
 CANON> ((x + 1) ^ 10 - (x - 1) ^ 10)
 ((20 * (X ^ 8)) + (240 * (X ^ 7)) + (504 * (X ^ 5))
-```
-
-  `+ (240 * (X ^ 3)) + (20 * X))`
-
-```lisp
+ + (240 * (X ^ 3)) + (20 * X))
 CANON> (3 * x ^ 3 + 4 * x * y * (x - 1) + x ^ 2 * (x + y))
 ((4 * (X ^ 3)) + ((5 * Y) * (X ^ 2)) + ((-4 * Y) * X))
 CANON> (3 * x ^ 3 + 4 * x * w * (x - 1) + x ^ 2 * (x + w))
@@ -545,18 +524,15 @@ The particular benchmark we will use here is raising 1 ***+** x + y + z* to the 
 
 ```lisp
 (defun r15-test ()
+ (let ((r (prefix->canon'(+ 1 (+ x (+ y z))))))
+  (time (poly^n r 15))
+  nil))
 ```
-
-  `(let ((r (prefix->canon'(+ 1 (+ x (+ y z))))))`
-
-    `(time (poly^n r 15))`
-
-    `nil))`
 
 This takes .97 seconds on our system.
 The equivalent test with the original `frpoly` code takes about the same time: .98 seconds.
 Thus, our program is as fast as production-quality code.
-In terms of storage space, vectors use about half as much storage as lists, because half of each cons cell is a pointer, while vectors are all useful data.[2](#fn0020)
+In terms of storage space, vectors use about half as much storage as lists, because half of each cons cell is a pointer, while vectors are all useful data.<a id="tfn15-2"></a><sup>[2](#fn15-2)</sup>
 
 How much faster is the polynomial-based code than the rule-based version?
 Unfortunately, we can't answer that question directly.
@@ -573,21 +549,12 @@ Such an algorithm takes only log *n* multiplications instead of *n.* We can add 
 
 ```lisp
 (defun poly^n (p n)
-```
-
-  `"Raise polynomial p to the nth power, n>=0."`
-
-  `(check-type n (integer 0 *))`
-
-  `(cond ((= n 0) (assert (not (eql p 0))) 1)`
-
-      `((integerp p) (expt p n))`
-
-      `((evenp n) (poly^2 (poly^n p (/ n 2)))) ;***`
-
-      `(t (poly*poly p (poly^n p (- n 1))))))`
-
-```lisp
+ "Raise polynomial p to the nth power, n>=0."
+ (check-type n (integer 0 *))
+ (cond ((= n 0) (assert (not (eql p 0))) 1)
+   ((integerp p) (expt p n))
+   ((evenp n) (poly^2 (poly^n p (/ n 2)))) ;***
+   (t (poly*poly p (poly^n p (- n 1))))))
 (defun poly^2 (p) (poly*poly p p))
 ```
 
@@ -598,7 +565,8 @@ If we use this version of `poly^n,` then `r15-test` takes 1.6 seconds instead of
 By the way, this is a perfect example of the conceptual power of recursive functions.
 We took an existing function, poly^n, added a single cond clause, and changed it from an *O*(*n*) to *O*(log *n*) algorithm.
 (This turned out to be a bad idea, but that's beside the point.
-It would be a good idea for raising integers to powers.) The reasoning that allows the change is simple: First, *pn* is certainly equal to (*p**n*/2)2 when *n* is even, so the change can't introduce any wrong answers.
+It would be a good idea for raising integers to powers.)
+The reasoning that allows the change is simple: First, *p<sup>n</sup>* is certainly equal to (*p*<sup>*n*/2</sup>)<sup>2</sup> when *n* is even, so the change can't introduce any wrong answers.
 Second, the change continues the policy of decrementing *n* on every recursive call, so the function must eventually termina te (when *n =* 0).
 If it gives no wrong answers, and it terminates, then it must give the right answer.
 
@@ -607,35 +575,24 @@ The initial algorithm is simple:
 
 ```lisp
 (defun poly^n (p n)
+ (let ((result 1))
+  (loop repeat n do (setf result (poly*poly p result)))
+  result))
 ```
-
-  `(let ((result 1))`
-
-    `(loop repeat n do (setf result (poly*poly p result)))`
-
-    `result))`
 
 But to change it, we have to change the repeat loop to a `while` loop, explicitly put in the decrement of *n*, and insert a test for the even case:
 
 ```lisp
 (defun poly^n (p n)
+ (let ((result 1))
+  (loop while (> n 0)
+   do (if (evenp n)
+     (setf p (poly^2 p)
+       n (/ n 2))
+     (setf result (poly*poly p result)
+       n (- n 1))))
+  result))
 ```
-
-  `(let ((result 1))`
-
-    `(loop while (> n 0)`
-
-      `do (if (evenp n)`
-
-          `(setf p (poly^2 p)`
-
-              `n (/ n 2))`
-
-          `(setf result (poly*poly p result)`
-
-              `n (- n 1))))`
-
-    `result))`
 
 For this problem, it is clear that thinking recursively leads to a simpler function that is easier to modify.
 
@@ -643,27 +600,31 @@ It turns out that this is not the final word.
 Exponentiation of polynomials can be done even faster, with a little more mathematical sophistication.
 [Richard Fateman's 1974](B9780080571157500285.xhtml#bb0380) paper on Polynomial Multiplication analyzes the complexity of a variety of exponentiation algorithms.
 Instead of the usual asymptotic analysis (e.g.
-*O*(*n*) or *O*(*n*2)), he uses a fine-grained analysis that computes the constant factors (e.g.
-1000 x *n* or 2 x *n*2).
+*O*(*n*) or *O*(*n*<sup>2</sup>)), he uses a fine-grained analysis that computes the constant factors (e.g.
+1000 x *n* or 2 x *n*<sup>2</sup>).
 Such analysis is crucial for small values of *n*.
 It turns out that for a variety of polynomials, an exponentiation algorithm based on the binomial theorem is best.
 The binomial theorem states that
 
-a+bn=&Sigma;i=0nn!i!n-i!aibn-i
-
-![si4_e](images/chapter15/si4_e.gif)
+<img src="images/chapter15/si4_e.svg"
+onerror="this.src='images/chapter15/si4_e.png'; this.onerror=null;"
+alt="( a + b ) ^{n} = \sum_{i=0}^{n} \frac {n!}{i! (n-i)!)} a^{i} b^{n-i}">
 
 for example,
 
-a+b3=b3+3ab2+3a2b+a3
-
-![si5_e](images/chapter15/si5_e.gif)
+<img src="images/chapter15/si5_e.svg"
+onerror="this.src='images/chapter15/si5_e.png'; this.onerror=null;"
+alt="(a+b)^{3} = b^{3} + 3ab^{2} + 3a^{2}b + a^{3}">
 
 We can use this theorem to compute a power of a polynomial all at once, instead of computing it by repeated multiplication or squaring.
-Of course, a polynomial will in general be a sum of more than two components, so we have to decid`e` how to split it into the *a* and *b* pieces.
+Of course, a polynomial will in general be a sum of more than two components, so we have to decide how to split it into the *a* and *b* pieces.
 There are two obvious ways: either eut the polynomial in half, so that *a* and *b* will be of equal size, or split off one component at a time.
 Fateman shows that the latter method is more efficient in most cases.
-In other words, a polynomial k1xn+k2xn-1+k3xn-2+... !!!(span) {:.hiddenClass} ![si6_e](images/chapter15/si6_e.gif) will be treated as the sum *a + b* where *a*=  *k*1*xn* and *b* is the rest of the polynomial.
+In other words, a polynomial
+*k*<sub>1</sub>*x<sup>n</sup>* + *k*<sub>2</sub>*x<sup>n-1</sup>* + *k*<sub>3</sub>*x<sup>n-2</sup>* + ...
+will be treated as the sum *a + b* where
+*a* = *k*<sub>1</sub>*x<sup>n</sup>*
+and *b* is the rest of the polynomial.
 
 Following is the code for binomial exponentiation.
 It is somewhat messy, because the emphasis is on efficiency.
@@ -747,7 +708,7 @@ This section presents a canonical form for rational expressions.
 First, a number or polynomial will continue to be represented as before.
 The quotient of two polynomials will be represented as a cons cells of numerator and denominator pairs.
 However, just as Lisp automatically reduces rational numbers to simplest form (6/8 is represented as 3/4), we must reduce rational expressions.
-So, for example, (*x*2- 1)/(*x*- 1) must be reduced to *x* + 1, not left as a quotient of two polynomials.
+So, for example, (*x*<sup>2</sup> - 1)/(*x* - 1) must be reduced to *x* + 1, not left as a quotient of two polynomials.
 
 The following functions build and access rational expressions but do not reduce to simplest form, except in the case where the denominator is a number.
 Building up the rest of the functionality for full rational expressions is left to a series of exercises:
@@ -794,17 +755,19 @@ Now that we can divide polynomials, the final step is to reinstate the logarithm
 The problem is that if we allow all these functions, we get into problems with canonical form again.
 For example, the following three expressions are all equivalent  :
 
-sinxcosx-&pi;2eix-e-ix2i
+<img src="images/chapter15/si7_e.svg"
+onerror="this.src='images/chapter15/si7_e.png'; this.onerror=null;"
+alt="\sin{(x)},
+\cos{\left (x - \frac {\pi}{2} \right ) },
+\frac {e^{ix} - e^{-ix}} {2i}">
 
-![si7_e](images/chapter15/si7_e.gif)
-
-If we are interested in assuring we have a canonical form, the safest thing is to allow only *e**x*** and log(*x*).
+If we are interested in assuring we have a canonical form, the safest thing is to allow only *e<sup>x</sup>* and log(*x*).
 All the other functions can be defined in terms of these two.
 With this extension, the set of expressions we can form is closed under differentiation, and it is possible to canonicalize expressions.
 The `result` is a mathematically sound construction known as a *differentiable field.* This is precisely the construct that is assumed by the Risch integration algorithm ([Risch 1969](B9780080571157500285.xhtml#bb0985),[1979](B9780080571157500285.xhtml#bb0990)).
 
 The disadvantage of this minimal extension is that answers may be expressed in unfamiliar terms.
-The user asks for *d* sin(*x2*)*/dx,* expecting a simple answer in terms of cos, and is surprised to see a complex answer involving *eix*.
+The user asks for *d* sin(*x*<sup>2</sup>)*/dx,* expecting a simple answer in terms of cos, and is surprised to see a complex answer involving *e<sup>ix</sup>*.
 Because of this problem, most computer algebra systems have made more radical extensions, allowing sin, cos, and other functions.
 These systems are treading on thin mathematical ice.
 Algorithms that would be guaranteed to work over a simple differentiable field may fail when the domain is extended this way.
@@ -860,35 +823,25 @@ A brief history of symbolic algebra systems is given in [chapter 8](B97800805711
 
 ```lisp
 (defun poly/poly (p q)
+ "Divide p by q: if d is the greatest common divisor of p and q
+ then p/q = (p/d) / (q/d). Note if q-1. then p/q = p."
+ (if (eql q 1)
+   p
+   (let ((d (poly-gcd p q)))
+    (make-rat (poly/poly p d)
+        (poly/poly q d)))))
 ```
 
-  `"Divide p by q: if d is the greatest common divisor of p and q`
-
-  `then p/q = (p/d) / (q/d).
-Note if q-1.
-then p/q = p."`
-
-  `(if (eql q 1)`
-
-      `p`
-
-      `(let ((d (poly-gcd p q)))`
-
-        `(make-rat (poly/poly p d)`
-
-                `(poly/poly q d)))))`
-
 **Answer 15.10** (1) An integer takes less time and space to process.
-(2) Representing numbers as a polynomial would cause an infinit`e` regress, because the coefficients would be numbers.
+(2) Representing numbers as a polynomial would cause an infinite regress, because the coefficients would be numbers.
 (3) Unless a policy was decided upon, the representation would not be canonical, since `#(x 3)` and `#(y 3)` both represent 3.
 
 ----------------------
 
-[1](#xfn0015) In fact, the algebraic properties of polynomial arithmetic and its generalizations fit so well with ideas in data abstraction that an extended example (in Scheme) on this topic is provided in *Structure and Interpretation of Computer Programs* by Abelson and Sussman (see section 2.4.3, [pages 153](B9780080571157500054.xhtml#p153)-[166](B9780080571157500054.xhtml#p166)).
+<a id="fn15-1"></a><sup>[1](#tfn15-1)</sup>
+In fact, the algebraic properties of polynomial arithmetic and its generalizations fit so well with ideas in data abstraction that an extended example (in Scheme) on this topic is provided in *Structure and Interpretation of Computer Programs* by Abelson and Sussman (see section 2.4.3, [pages 153](B9780080571157500054.xhtml#p153)-[166](B9780080571157500054.xhtml#p166)).
 We'll pursue a slightly different approach here.
-!!!(p) {:.ftnote1}
 
-[2](#xfn0020) Note: systems that use `"`cdr-coding`"` take about the same space for lists that are allocated all at once as for vectors.
+<a id="fn15-2"></a><sup>[2](#tfn15-2)</sup>
+Note: systems that use `"`cdr-coding`"` take about the same space for lists that are allocated all at once as for vectors.
 But cdr-coding is losing favor as RISC chips replace microcoded processors.
-!!!(p) {:.ftnote1}
-

@@ -199,7 +199,7 @@ For example, given the code:
 
 the innermost environment is `((e f) (c d) (a b))`.
 The function `in-env-p` tests if a variable appears in an environment.
-If this environment were called `env`, then `(in-env-p 'f env)` would return `(2 1)` and `(in-env-p 'x env)` would return `nil`.
+If this environment were called `env`, then `(in-env-p 'f env)` would return `(0 1)` and `(in-env-p 'x env)` would return `nil`.
 
 ```lisp
 (defun gen-var (var env)
@@ -567,12 +567,12 @@ The parameter `val?` is true when the expression we are compiling returns a valu
 The parameter `more?` is false when the expression represents the final value, and it is true when there is more to compute.
 In summary, there are three possibilities:
 
-| `val?` | `more?` | example: the `X` in:          |
-|--------|---------|-------------------------------|
-| true   | true    | `(if X y z)`*or*`(f X y)`     |
-| true   | false   | `(if p X z)`*or*`(begin y X)` |
-| false  | true    | `(begin X y)`                 |
-| false  | false   | *impossible*                  |
+| `val?` | `more?` | example: the `X` in:            |
+|--------|---------|---------------------------------|
+| true   | true    | `(if X y z)` *or* `(f X y)`     |
+| true   | false   | `(if p X z)` *or* `(begin y X)` |
+| false  | true    | `(begin X y)`                   |
+| false  | false   | *impossible*                    |
 
 The code for the compiler employing these conventions follows:
 
@@ -991,10 +991,8 @@ It is not tail-recursive because before it calls `length` recursively, it must s
 
 ```lisp
 > (comp-show '(define (length l)
+                (if (null? l) 0 (+ 1 (length (cdr l))))))
 ```
-
-`                                (if (null?
-l) 0 (+  1 (length (cdr l))))))`
 
 | []()  |          |          |          |     |     |     |
 |-------|----------|----------|----------|-----|-----|-----|
@@ -1022,15 +1020,10 @@ Of course, it is possible to write `length` in tail-recursive fashion:
 
 ```lisp
 > (comp-show '(define (length l)
-                            (letrec ((len (lambda (l n)
-```
-
-`                                                            (if (null?
-l) n`
-
-```lisp
-                                                                    (len (rest l) (+ n l))))))
-                                (len l 0))))
+              (letrec ((len (lambda (l n)
+                              (if (null? l) n
+                                  (len (rest l) (+ n l))))))
+                (len l 0))))
 ```
 
 | []()  |          |          |         |          |        |     |       |       |
@@ -1377,7 +1370,7 @@ If we want to be able to look at assembled code, we need a new printing function
 ```
 
 Here's the Scheme top level.
-Note that it is written in Scheme itself; we compile the definition of the read-eval-print loop,[1](#fn0010) load it into the machine, and then start executing it.
+Note that it is written in Scheme itself; we compile the definition of the read-eval-print loop,<a id="tfn23-1"></a><sup>[1](#fn23-1)</sup> load it into the machine, and then start executing it.
 There's also an interface to compile and execute a single expression, `comp-go`.
 
 ```lisp
@@ -1741,23 +1734,18 @@ We could write the Scheme function:
 
 ```lisp
 (define (extrema list)
-```
-
-`      ;; Given a list of numbers.
-return an a-list`
-
-```lisp
-      ;; with max and min values
-      '((max ,(apply max list)) (min ,(apply min list))))
+   ;; Given a list of numbers. return an a-list
+   ;; with max and min values
+   '((max ,(apply max list)) (min ,(apply min list))))
 ```
 
 After expansion of the quasiquote, the definition of `extrema` will be:
 
 ```lisp
 (define extrema
-      (lambda (list)
-          (list (list 'max (apply max list))
-                      (list 'min (apply min list)))))
+   (lambda (list)
+     (list (list 'max (apply max list))
+           (list 'min (apply min list)))))
 ```
 
 The problem is that `list` is an argument to the function `extrema`, and the argument shadows the global definition of `list` as a function.
@@ -1773,8 +1761,8 @@ Those who do define local functions tend not to use already established names li
 
 ## 23.6 History and References
 
-Guy Steele's 1978 MIT master's thesis on the language Scheme, rewritten as Steele 1983, describes an innovative and influential compiler for Scheme, called RABBIT.
-[2](#fn0015) A good article on an "industrial-strength" Scheme compiler based on this approach is described in [Kranz et al.'s 1986](B9780080571157500285.xhtml#bb0675) paper on ORBIT, the compiler for the T dialect of Scheme.
+Guy Steele's 1978 MIT master's thesis on the language Scheme, rewritten as Steele 1983, describes an innovative and influential compiler for Scheme, called RABBIT.<a id="tfn23-2"></a><sup>[2](#fn23-2)</sup>
+A good article on an "industrial-strength" Scheme compiler based on this approach is described in [Kranz et al.'s 1986](B9780080571157500285.xhtml#bb0675) paper on ORBIT, the compiler for the T dialect of Scheme.
 
 Abelson and Sussman's *Structure and Interpretation of Computer Programs* (1985) contains an excellent chapter on compilation, using slightly different techniques and compiling into a somewhat more confusing machine language.
 Another good text is [John Allen's *Anatomy of Lisp* (1978)](B9780080571157500285.xhtml#bb0040).
@@ -1815,7 +1803,7 @@ Here the function `partition` takes a vector, two indices into the vector, and a
 It modifies the vector and returns an index, `pivot`, such that all elements of the vector below `pivot` are less than all elements at `pivot` or above.
 
 It is well known that quicksort takes time proportional to *n* log *n* to sort a vector of *n* elements, if the pivots are chosen well.
-With poor pivot choices, it can take time proportional to *n*2.
+With poor pivot choices, it can take time proportional to *n*<sup>2</sup>.
 
 The question is, what is the space required by quicksort?
 Besides the vector itself, how much additional storage must be temporarily allocated to sort a vector?
@@ -1847,11 +1835,10 @@ That is, `(set!
 You will need to add some new primitive functions, and you should also provide a way for the user to define new `set!` procedures.
 One way to do that would be with a `setter` function for `set!`, for example:
 
-`(set!
-(setter third)`
-
-`            (lambda (val list) (set-car!
-(cdr (cdr list)) val)))`
+```lisp
+(set! (setter third)
+      (lambda (val list) (set-car! (cdr (cdr list)) val)))
+```
 
 **Exercise  23.9 [m]** It is a curious asymmetry of Scheme that there is a special notation for lambda expressions within `define` expressions, but not within `let`.
 Thus, we see the following:
@@ -1948,19 +1935,9 @@ Consider:
 ```lisp
 => (define (one-two) '(1 2))
 ONE-TWO
-```
-
-`=> (eq?
-(one-two) (one-two))`
-
-```lisp
+=> (eq? (one-two) (one-two))
 T
-```
-
-`=> (eq?
-'(1 2) '(1 2))`
-
-```lisp
+=> (eq? '(1 2) '(1 2))
 NIL
 ```
 
@@ -1970,11 +1947,11 @@ In short, what's the point?
 It is also (nearly) possible to replace `if` with alternate code.
 The idea is to replace:
 
-`(if`*test then-part else-part*)
+`(if` *test then-part else-part*)
 
 with
 
-(*test*`(delay`*then-part*) `(delay`*else-part*))
+(*test* `(delay` *then-part*) `(delay` *else-part*))
 
 Now if we are assured that any *test* returns either `#t` or `#f`, then we can make the following definitions:
 
@@ -2111,31 +2088,26 @@ But to demonstrate that the right solution doesn't always appear the first time,
 
 ```lisp
 (defun always (boolean pred env)
-      "Does predicate always evaluate to boolean in env?"
-      (if (atom pred)
-          (and (constantp pred) (equiv boolean pred))
-          (case (first pred)
-                (QUOTE (equiv boolean pred))
-                (BEGIN (if (null (rest pred)) (equiv boolean nil)
-                                                    (always boolean (last1 pred) env)))
-```
-
-`                (SET!
-(always boolean (third pred) env))`
-
-```lisp
-                (IF (or (and (always t (second pred) env)
-                                                      (always boolean (third pred) env))
-                                          (and (always nil (second pred) env)
-                                                      (always boolean (fourth pred) env))
-                                          (and (always boolean (third pred) env)
-                                                      (always boolean (fourth pred) env))))
-                (LAMBDA (equiv boolean t))
-                (t (let ((prim (primitive-p (first pred) env
-                                                                                          (length (rest pred)))))
-                        (and prim
-                                        (eq (prim-always prim)
-                                                    (if boolean 'true 'false))))))))
+   "Does predicate always evaluate to boolean in env?"
+   (if (atom pred)
+     (and (constantp pred) (equiv boolean pred))
+     (case (first pred)
+        (QUOTE (equiv boolean pred))
+        (BEGIN (if (null (rest pred)) (equiv boolean nil)
+                          (always boolean (last1 pred) env)))
+        (SET! (always boolean (third pred) env))
+        (IF (or (and (always t (second pred) env)
+                           (always boolean (third pred) env))
+                     (and (always nil (second pred) env)
+                           (always boolean (fourth pred) env))
+                     (and (always boolean (third pred) env)
+                           (always boolean (fourth pred) env))))
+        (LAMBDA (equiv boolean t))
+        (t (let ((prim (primitive-p (first pred) env
+                                             (length (rest pred)))))
+            (and prim
+                    (eq (prim-always prim)
+                          (if boolean 'true 'false))))))))
 (defun equiv (x y) "Boolean equivalence" (eq (not x) (not y)))
 ```
 
@@ -2149,11 +2121,11 @@ This kind of restriction goes against the grain of Scheme.
 
 ----------------------
 
-[1](#xfn0010) Strictly speaking, this is a read-compile-funcall-write loop.
-!!!(p) {:.ftnote1}
+<a id="fn23-1"></a><sup>[1](#tfn23-1)</sup>
+Strictly speaking, this is a read-compile-funcall-write loop.
 
-[2](#xfn0015) At the time, the MacLisp compiler dealt with something called "lisp assembly code" or LAP.
+<a id="fn23-2"></a><sup>[2](#tfn23-2)</sup>
+At the time, the MacLisp compiler dealt with something called "lisp assembly code" or LAP.
 The function to input LAP was called `lapin`.
 Those who know French will get the pun.
-!!!(p) {:.ftnote1}
 
