@@ -22,7 +22,7 @@ They are then manipulated, and translated back to external form for output.
 Of course, the simplifier we have already does this kind of translation, to some degree.
 It translates `(3 + x + -3 + y)` into `(+ x y)` internally, and then outputs it as `(x + y)`.
 But a *canonical* representation must have the property that any two expressions that are equal have identical canonical forms.
-In our system the expression `(5 + y + x + -5)`is translated to the internal form `(+ y x)`, which is not identical to `(+ x y)`, even though the two expressions are equal.
+In our system the expression `(5 + y + x + -5)` is translated to the internal form `(+ y x)`, which is not identical to `(+ x y)`, even though the two expressions are equal.
 Thus, our system is not canonical.
 Most of the problems of the previous section stem from the lack of a canonical form.
 
@@ -41,7 +41,7 @@ We will speak of a polynomial's *main variable, coefficients,* and *degree.* In 
 
 <img src="images/chapter15/si1_e.svg"
 onerror="this.src='images/chapter15/si1_e.png'; this.onerror=null;"
-alt="5 \times x^{3} +b \times x^{2} +c \times x + 1">
+alt="5 \times x^{3} +b \times x^{2} +c \times x + 1" />
 
 the main variable is *x,* the degree is 3 (the highest power of *x*), and the coefficients are 5, *b, c* and 1.
 We can define an input format for polynomials as follows:
@@ -97,12 +97,44 @@ The word "polynomial" is used ambiguously to refer to both the mathematical conc
 
 A glossary for the canonical simplifier program is given in [figure 15.1](#f0010).
 
-| []()                                                        |
-|-------------------------------------------------------------|
-| ![f15-01](images/chapter15/f15-01.jpg)                      |
-| Figure 15.1: Glossary for the Symbolic Manipulation Program |
+| Function           | Description                                                         |
+|--------------------|---------------------------------------------------------------------|
+|                    | **Top-Level Functions**                                             |
+| `canon-simplifier` | A read-canonicalize-print loop.                                     |
+| `canon`            | Canonicalize argument and convert it back to infix.                 |
+|                    | **Data Types**                                                      |
+| `polynomial`       | A vector of main variable and coefficients.                         |
+|                    | **Major Functions**                                                 |
+| `prefix->canon`    | Convert a prefix expression to canonical polynomial.                |
+| `canon->prefix`    | Convert a canonical polynomial to a prefix expression.              |
+| `poly+poly`        | Add two polynomials.                                                |
+| `poly*poly`        | Multiply two polynomials.                                           |
+| `poly^n`           | Raise the polynomial *p* to the nth power, *n*>=0.                  |
+| `deriv-poly`       | Return the derivative, *dp/dx*, of the polynomial *p*.              |
+|                    | **Auxiliary Functions**                                             |
+| `poly`             | Construct a polynomial with given coefficients.                     |
+| `make-poly`        | Construct a polynomial of given degree.                             |
+| `coef`             | Pick out the ith coefficient of a polynomial.                       |
+| `main-var`         | The main variable of a polynomial.                                  |
+| `degree`           | The degree of a polynomial; e.g., `(degree` *x*<sup>2</sup>`) = 2`. |
+| `var=`             | Are two variables identical?                                        |
+| `var>`             | Is one variable ordered before another?                             |
+| `poly+`            | Unary or binary polynomial addition.                                |
+| `poly-`            | Unary or binary polynomial subtraction.                             |
+| `k+poly`           | Add a constant *k* to a polynomial *p*.                             |
+| `k*poly`           | Multiply a polynomial *p* by a constant *k*.                        |
+| `poly+same`        | Add two polynomials with the same main variable.                    |
+| `poly*same`        | Multiply two polynomials with the same main variable.               |
+| `normalize-poly`   | Alter a polynomial by dropping trailing zeros.                      |
+| `exponent->prefix` | Used to convert to prefix.                                          |
+| `args->prefix`     | Used to convert to prefix.                                          |
+| `rat-numerator`    | Select the numerator of a rational.                                 |
+| `rat-denominator`  | Select the denominator of a rational.                               |
+| `rat*rat`          | Multiply two rationals.                                             |
+| `rat+rat`          | Add two rationals.                                                  |
+| `rat/rat`          | Divide two rationals.                                               |
 
-*(ed: should be a markdown table)*
+Figure 15.1: Glossary for the Symbolic Manipulation Program
 
 The functions defining the type `polynomial` follow.
 Because we are concerned with efficiency, we proclaim certain short functions to be compiled inline, use the specific function `svref` (simple-vector reference) rather than the more general aref, and provide declarations for the polynomials using the special form the.
@@ -315,9 +347,9 @@ A doubly nested loop multiplies each coefficient of `p` and `q` and adds the `re
     r))
 ```
 
-Both `poly+poly` and `poly*poly` make use of the function `normalize-poly` to "normalize" the `result`.
-The idea is that `(- (^ 5) (^ x 5))` should return 0, not `#(x 0 0 0 0 0 0)`.
-Note that `normal` ize`-poly` is a destructive operation: it calls `delete,` which can actually alter its argument.
+Both `poly+poly` and `poly*poly` make use of the function `normalize-poly` to "normalize" the result.
+The idea is that `(- (^ 5) (^ x 5))` should return `0`, not `#(x 0 0 0 0 0 0)`.
+Note that `normalize-poly` is a destructive operation: it calls `delete`, which can actually alter its argument.
 Normally this is a dangerous thing, but since `normalize-poly` is replacing something with its conceptual equal, no harm is done.
 
 ```lisp
@@ -387,16 +419,16 @@ For example:
 
 <img src="images/chapter15/si2_e.svg"
 onerror="this.src='images/chapter15/si2_e.png'; this.onerror=null;"
-alt="\int ax^{2} + bx\, dx = \frac {ax^{3}}{3} + \frac {bx^{2}}{2} + c.">
+alt="\int ax^{2} + bx\, dx = \frac {ax^{3}}{3} + \frac {bx^{2}}{2} + c." />
 
 Write a function to integrate polynomials and install it in `prefix->canon`.
 
 **Exercise  15.2 [m]** Add support for *definite* integrals, such as
 <img src="images/chapter15/si3_e.svg"
 onerror="this.src='images/chapter15/si3_e.png'; this.onerror=null;"
-alt="\int_{a}^{b} y\, dx">.
+alt="\int_{a}^{b} y\, dx" />.
 You will need to make up a suitable notation and properly install it in both `infix->prefix` and `prefix->canon`.
-A full implementation of this feature would have to consider infinity as a bound, as well as the problem of integrating over singularises.
+A full implementation of this feature would have to consider infinity as a bound, as well as the problem of integrating over singularities.
 You need not address these problems.
 
 ## 15.3 Converting between Infix and Prefix
@@ -538,8 +570,8 @@ How much faster is the polynomial-based code than the rule-based version?
 Unfortunately, we can't answer that question directly.
 We can time `(simp ' ( (1 + x + y + z) ^ 15)))`.
 This takes only a tenth of a second, but that is because it is doing no work at all-the answer is the same as the input!
-Alternately, we can take the expression computed by `(poly^n r 15)`, convert it to prefix, and pass that `to simplify.
-simplify` takes 27.8 seconds on this, so the rule-based version is much slower.
+Alternately, we can take the expression computed by `(poly^n r 15)`, convert it to prefix, and pass that to `simplify`.
+`simplify` takes 27.8 seconds on this, so the rule-based version is much slower.
 [Section 9.6](B9780080571157500091.xhtml#s0035) describes ways to speed up the rule-based program, and a comparison of timing data appears on [page 525](#p525).
 
 There are always surprises when it comes down to measuring timing data.
@@ -567,7 +599,7 @@ We took an existing function, poly^n, added a single cond clause, and changed it
 (This turned out to be a bad idea, but that's beside the point.
 It would be a good idea for raising integers to powers.)
 The reasoning that allows the change is simple: First, *p<sup>n</sup>* is certainly equal to (*p*<sup>*n*/2</sup>)<sup>2</sup> when *n* is even, so the change can't introduce any wrong answers.
-Second, the change continues the policy of decrementing *n* on every recursive call, so the function must eventually termina te (when *n =* 0).
+Second, the change continues the policy of decrementing *n* on every recursive call, so the function must eventually terminate (when *n* = 0).
 If it gives no wrong answers, and it terminates, then it must give the right answer.
 
 In contrast, making the change for an iterative algorithm is more complex.
@@ -608,17 +640,17 @@ The binomial theorem states that
 
 <img src="images/chapter15/si4_e.svg"
 onerror="this.src='images/chapter15/si4_e.png'; this.onerror=null;"
-alt="( a + b ) ^{n} = \sum_{i=0}^{n} \frac {n!}{i! (n-i)!)} a^{i} b^{n-i}">
+alt="( a + b ) ^{n} = \sum_{i=0}^{n} \frac {n!}{i! (n-i)!)} a^{i} b^{n-i}" />
 
 for example,
 
 <img src="images/chapter15/si5_e.svg"
 onerror="this.src='images/chapter15/si5_e.png'; this.onerror=null;"
-alt="(a+b)^{3} = b^{3} + 3ab^{2} + 3a^{2}b + a^{3}">
+alt="(a+b)^{3} = b^{3} + 3ab^{2} + 3a^{2}b + a^{3}" />
 
 We can use this theorem to compute a power of a polynomial all at once, instead of computing it by repeated multiplication or squaring.
 Of course, a polynomial will in general be a sum of more than two components, so we have to decide how to split it into the *a* and *b* pieces.
-There are two obvious ways: either eut the polynomial in half, so that *a* and *b* will be of equal size, or split off one component at a time.
+There are two obvious ways: either cut the polynomial in half, so that *a* and *b* will be of equal size, or split off one component at a time.
 Fateman shows that the latter method is more efficient in most cases.
 In other words, a polynomial
 *k*<sub>1</sub>*x<sup>n</sup>* + *k*<sub>2</sub>*x<sup>n-1</sup>* + *k*<sub>3</sub>*x<sup>n-2</sup>* + ...
@@ -751,20 +783,21 @@ Polynomials are not closed under division, so `poly/poly` will return a rational
 
 ## 15.6 Extending Rational Expressions
 
-Now that we can divide polynomials, the final step is to reinstate the logarithmic, exponential, and trigonometrie functions.
+Now that we can divide polynomials, the final step is to reinstate the logarithmic, exponential, and trigonometric functions.
 The problem is that if we allow all these functions, we get into problems with canonical form again.
-For example, the following three expressions are all equivalent  :
+For example, the following three expressions are all equivalent:
 
 <img src="images/chapter15/si7_e.svg"
 onerror="this.src='images/chapter15/si7_e.png'; this.onerror=null;"
 alt="\sin{(x)},
 \cos{\left (x - \frac {\pi}{2} \right ) },
-\frac {e^{ix} - e^{-ix}} {2i}">
+\frac {e^{ix} - e^{-ix}} {2i}" />
 
 If we are interested in assuring we have a canonical form, the safest thing is to allow only *e<sup>x</sup>* and log(*x*).
 All the other functions can be defined in terms of these two.
 With this extension, the set of expressions we can form is closed under differentiation, and it is possible to canonicalize expressions.
-The `result` is a mathematically sound construction known as a *differentiable field.* This is precisely the construct that is assumed by the Risch integration algorithm ([Risch 1969](B9780080571157500285.xhtml#bb0985),[1979](B9780080571157500285.xhtml#bb0990)).
+The `result` is a mathematically sound construction known as a *differentiable field.*
+This is precisely the construct that is assumed by the Risch integration algorithm ([Risch 1969](B9780080571157500285.xhtml#bb0985), [1979](B9780080571157500285.xhtml#bb0990)).
 
 The disadvantage of this minimal extension is that answers may be expressed in unfamiliar terms.
 The user asks for *d* sin(*x*<sup>2</sup>)*/dx,* expecting a simple answer in terms of cos, and is surprised to see a complex answer involving *e<sup>ix</sup>*.
@@ -782,7 +815,7 @@ A brief history of symbolic algebra systems is given in [chapter 8](B97800805711
 
 ## 15.8 Exercises
 
-**Exercise 15.7 [h]** Implement an extension of the rationals to include logarithmic, exponential, and trigonometrie functions.
+**Exercise 15.7 [h]** Implement an extension of the rationals to include logarithmic, exponential, and trigonometric functions.
 
 **Exercise 15.8 [m]** Modify `deriv` to handle the extended rational expressions.
 

@@ -46,7 +46,8 @@ This is a considerable amount of work, but it is all handled by `read`.
 We would need a syntactic parser to assemble the lexical tokens into statements.
 `read` also handles this, but only because Lisp statements have trivial syntax: the syntax of lists and atoms.
 Thus `read` serves fine as a syntactic parser for Lisp, but would fail for Pascal.
-Next, we need the evaluation or interpretation part of the interpreter; `eval` does this nicely, and could handle Pascal just as well if we parsed Pascal syntax into Lisp expressions, `print` does much less work than `read` or `eval`, but is still quite handy.
+Next, we need the evaluation or interpretation part of the interpreter; `eval` does this nicely, and could handle Pascal just as well if we parsed Pascal syntax into Lisp expressions.
+`print` does much less work than `read` or `eval`, but is still quite handy.
 
 The important point is not whether one line of code can be considered an implementation of Lisp; it is to recognize common patterns of computation.
 Both `eliza` and `lisp` can be seen as interactive interpreters that read some input, transform or evaluate the input in some way, print the result, and then go back for more input.
@@ -80,7 +81,7 @@ This function could then be used in writing each new interpreter:
 ```lisp
 (defun lisp ()
   (interactive-interpreter '> #'eval))
-  
+
 (defun eliza ()
   (interactive-interpreter 'eliza>
     #'(lambda (x) (flatten (use-eliza-rules x)))))
@@ -92,7 +93,7 @@ Or, with the help of the higher-order function compose:
 (defun compose (f g)
   "Return the function that computes (f (g x))."
   #'(lambda (x) (funcall f (funcall g x))))
-  
+
 (defun eliza ()
   (interactive-interpreter 'eliza>
     (compose #'flatten #'use-eliza-rules)))
@@ -115,26 +116,26 @@ The following version of `interactive-interpreter` adds two new features.
 First, it uses the macro `handler-case`<a id="tfn06-1"></a><sup>[1](#fn06-1)</sup> to handle errors.
 This macro evaluates its first argument, and normally just returns that value.
 However, if an error occurs, the subsequent arguments are checked for an error condition that matches the error that occurred.
-In this use, the case `error` matches all errors, and the action taken is to prints the error condition and continue.
+In this use, the case `error` matches all errors, and the action taken is to print the error condition and continue.
 
 This version also allows the prompt to be either a string or a function of no arguments that will be called to print the prompt.
 The function `prompt-generator`, for example, returns a function that will print prompts of the form [1], [2], and so forth.
 
 ```lisp
 (defun interactive-interpreter (prompt transformer)
-   "Read an expression, transform it, and print the result."
-   (loop
-      (handler-case
-	  (progn
-	    (if (stringp prompt)
-		(print prompt)
-		(funcall prompt))
-	    (print (funcall transformer (read))))
-	;; In case of error, do this:
-	(error (condition)
-	  (format t "~&;; Error ~a ignored, back to top level."
-		  condition)))))
-          
+  "Read an expression, transform it, and print the result."
+  (loop
+    (handler-case
+      (progn
+        (if (stringp prompt)
+            (print prompt)
+            (funcall prompt))
+        (print (funcall transformer (read))))
+      ;; In case of error, do this:
+      (error (condition)
+        (format t "~&;; Error ~a ignored, back to top level."
+                condition)))))
+
 (defun prompt-generator (&optional (num 0) (ctl-string "[~d] "))
   "Return a function that prints prompts like [l], [2], etc."
   #'(lambda () (format t ctl-string (incf num))))
@@ -166,7 +167,7 @@ This would look like:
 Since patterns are like boolean expressions, it makes sense to allow boolean operators on them.
 Following the question-mark convention, we will use `?and`, `?or` and `?not` for the operators.<a id="tfn06-2"></a><sup>[2](#fn06-2)</sup>
 Here is a pattern to match a relational expression with one of three relations.
-It succeeds because the < matches one of the three possibilities specified by `(?or < = >).`
+It succeeds because the `<` matches one of the three possibilities specified by `(?or < = >).`
 
 ```lisp
 > (pat-match '(?x (?or < = >) ?y) '(3 < 4)) => ((?Y . 4) (?X . 3))
@@ -197,23 +198,23 @@ It has to be listed as a segment pattern rather than a single pattern because it
 When the description of a problem gets this complicated, it is a good idea to attempt a more formal specification.
 The following table describes a grammar of patterns, using the same grammar rule format described in [chapter 2](B9780080571157500029.xhtml).
 
-| []()              |                        |                                                   |
-|-------------------|------------------------|---------------------------------------------------|
-| *pat*=>           | *var*                  | match any one expression                          |
-|                   | *Constant*             | match just this atom                              |
-|                   | *segment*-*pat*        | match something against a sequence                |
-|                   | *single*-*pat*         | match something against one expression            |
-|                   | (*pat* . *pat*)         | match the first and the rest                      |
-| *single*-*pat*=>  | (?is *var predicate*) | test predicate on one expression                  |
-|                   | (?or *pat*...)        | match any pattern on one expression               |
-|                   | (?and *pat*...)       | match every pattern on one expression             |
-|                   | (?not *pat*...)       | succeed if pattern(s) do not match                |
-| *segment*-*pat*=> | ( (?* *var*)...)       | match zero or more expressions                    |
-|                   | ( (?+ *var*) ... )     | match one or more expressions                     |
-|                   | ( ( ?? *var*) ... )    | match zero or one expression                      |
-|                   | ( ( ?if *exp* )...)   | test if exp (which may contain variables) is true |
-| *Var* =>          | ?*chars*               | a symbol starting with ?                          |
-| *constant* =>     | *atom*                 | any nonvariable atom                              |
+| []()            |                         |                                                   |
+|-----------------|-------------------------|---------------------------------------------------|
+| *pat*=>         | *var*                   | match any one expression                          |
+|                 | *constant*              | match just this atom                              |
+|                 | *segment-pat*           | match something against a sequence                |
+|                 | *single-pat*            | match something against one expression            |
+|                 | (*pat . pat*)           | match the first and the rest                      |
+| *single-pat*=>  | (`?is` *var predicate*) | test predicate on one expression                  |
+|                 | (`?or` *pat*...)        | match any pattern on one expression               |
+|                 | (`?and` *pat*...)       | match every pattern on one expression             |
+|                 | (`?not` *pat*...)       | succeed if pattern(s) do not match                |
+| *segment-pat*=> | ((`?*` *var*)...)       | match zero or more expressions                    |
+|                 | ((`?+` *var*) ... )     | match one or more expressions                     |
+|                 | ((`??` *var*) ... )     | match zero or one expression                      |
+|                 | ((`?if` *exp* )...)     | test if exp (which may contain variables) is true |
+| *var* =>        | `?`*chars*              | a symbol starting with ?                          |
+| *constant* =>   | *atom*                  | any nonvariable atom                              |
 
 Despite the added complexity, all patterns can still be classified into five cases.
 The pattern must be either a variable, constant, a (generalized) segment pattern, a (generalized) single-element pattern, or a cons of two patterns.
@@ -244,11 +245,11 @@ For completeness, we repeat here the necessary constants and low-level functions
 
 (defconstant no-bindings '((t . t))
   "Indicates pat-match success, with no variables.")
-  
+
 (defun variable-p (x)
   "Is x a variable (a symbol beginning with '?')?"
   (and (symbolp x) (equal (elt (symbol-name x) 0) #\?)))
-  
+
 (defun get-binding (var bindings)
   "Find a (variable . value) pair in a binding list."
   (assoc var bindings))
@@ -256,17 +257,17 @@ For completeness, we repeat here the necessary constants and low-level functions
 (defun binding-var (binding)
   "Get the variable part of a single binding."
   (car binding))
-  
+
 (defun binding-val (binding)
   "Get the value part of a single binding."
   (cdr binding))
-  
+
 (defun make-binding (var val) (cons var val))
 
 (defun lookup (var bindings)
   "Get the value part (for var) from a binding list."
   (binding-val (get-binding var bindings)))
-  
+
 (defun extend-bindings (var val bindings)
   "Add a (var . value) pair to a binding list."
   (cons (make-binding var val)
@@ -275,7 +276,7 @@ For completeness, we repeat here the necessary constants and low-level functions
     (if (eq bindings no-bindings)
       nil
       bindings)))
-      
+
 (defun match-variable (var input bindings)
   "Does VAR match input? Uses (or updates) and returns bindings."
   (let ((binding (get-binding var bindings)))
@@ -327,28 +328,28 @@ A function that looks up a data-driven function and calls it (such as `segment-m
   (and (consp pattern) (consp (first pattern))
     (symbolp (first (first pattern)))
     (segment-match-fn (first (first pattern)))))
-    
+
 (defun single-pattern-p (pattern)
-  "Is this a single-matching pattern? 
+  "Is this a single-matching pattern?
   E.g. (?is x predicate) (?and . patterns) (?or . patterns)."
   (and (consp pattern)
       (single-match-fn (first pattern))))
-      
+
 (defun segment-matcher (pattern input bindings)
   "Call the right function for this kind of segment pattern."
   (funcall (segment-match-fn (first (first pattern)))
         pattern input bindings))
-	
+
 (defun single-matcher (pattern input bindings)
   "Call the right function for this kind of single pattern."
   (funcall (single-match-fn (first pattern))
         (rest pattern) input bindings))
-	
+
 (defun segment-match-fn (x)
   "Get the segment-match function for x,
   if it is a symbol that has one."
   (when (symbolp x) (get x 'segment-match)))
-  
+
 (defun single-match-fn (x)
   "Get the single-match function for x,
   if it is a symbol that has one."
@@ -369,7 +370,7 @@ First, the single-pattern matching functions:
         (not (funcall pred input)))
       fail
       new-bindings)))
-      
+
 (defun match-and (patterns input bindings)
   "Succeed if all the patterns match the input."
   (cond ((eq bindings fail) fail)
@@ -377,7 +378,7 @@ First, the single-pattern matching functions:
       (t (match-and (rest patterns) input
               (pat-match (first patterns) input
                   bindings)))))
-		  
+
 (defun match-or (patterns input bindings)
   "Succeed if any one of the patterns match the input."
   (if (null patterns)
@@ -387,7 +388,7 @@ First, the single-pattern matching functions:
         (if (eq new-bindings fail)
           (match-or (rest patterns) input bindings)
           new-bindings))))
-	  
+
 (defun match-not (patterns input bindings)
   "Succeed if none of the patterns match the input
   This will never bind any variables."
@@ -422,14 +423,14 @@ If it is not a constant, then we just return the first possible starting positio
               (if (eq b2 fail)
                 (segment-match pattern input bindings (+ pos 1))
                 b2)))))))
-		
- (defun first-match-pos (pat1 input start)
-   "Find the first position that pat1 could possibly match input,
-   starting at position start. If pat1 is non-constant, then just  return start."
-   (cond ((and (atom pat1) (not (variable-p pat1)))
-	  (position pat1 input :start start :test #'equal))
-	 ((<= start (length input)) start)
-	 (t nil)))
+
+(defun first-match-pos (pat1 input start)
+  "Find the first position that pat1 could possibly match input,
+  starting at position start. If pat1 is non-constant, then just  return start."
+  (cond ((and (atom pat1) (not (variable-p pat1)))
+         (position pat1 input :start start :test #'equal))
+        ((<= start (length input)) start)
+        (t nil)))
 ```
 
 In the first example below, the segment variable `?x` matches the sequence (`b c`).
@@ -512,7 +513,7 @@ We will only allow symbols to be macros, so it is reasonable to store the expans
   "Define symbol as a macro standing for a pat-match pattern."
   (setf (get symbol 'expand-pat-match-abbrev)
     (expand-pat-match-abbrev expansion))
-    
+
 (defun expand-pat-match-abbrev (pat)
   "Expand out all pattern matching abbreviations in pat."
   (cond ((and (symbolp pat) (get pat 'expand-pat-match-abbrev)))
@@ -569,7 +570,7 @@ By default, we will use `pat-match`, but it should be possible to use other matc
 Once we have determined which rule to use, we have to determine what it means to use it.
 The default is just to substitute the bindings of the match into the then-part of the rule.
 
-The rule-based translater tool now looks like this:
+The rule-based translator tool now looks like this:
 
 ```lisp
 (defun rule-based-translator
@@ -584,7 +585,7 @@ The rule-based translater tool now looks like this:
         (if (not (eq result fail))
           (funcall action result (funcall rule-then rule)))))
     rules))
-    
+
 (defun use-eliza-rules (input)
   "Find some rule with which to transform the input."
   (rule-based-translator input *eliza-rules*
@@ -630,7 +631,10 @@ Some graphs will have a regular structure, while others will appear random.
 We will start by considering only trees-that is, graphs where a state can be reached by only one unique sequence of successor links.
 Here is a tree:
 
-![u06-01](images/chapter6/u06-01.jpg)
+<a id="diagram-06-01"></a>
+<img src="images/chapter6/diagram-06-01.svg"
+  onerror="this.src='images/chapter6/diagram-06-01.png'; this.onerror=null;"
+  alt="Diagram 6.1" />
 
 ### Searching Trees
 
@@ -647,8 +651,8 @@ Note that `tree-search` itself does not specify any particular searching strateg
 
 ```lisp
 (defun tree-search (states goal-p successors combiner)
-  "Find a state that satisfies goal-p.
-   Start with states,and search according to successors and combiner."
+  "Find a state that satisfies goal-p.  Start with states,
+  and search according to successors and combiner."
   (dbg :search "~&; ; Search: ~  a" states)
   (cond ((null states) fail)
       ((funcall goal-p (first states)) (first states))
@@ -683,8 +687,8 @@ The `binary-tree` function generates an infinite tree of which the first 15 node
 (defun binary-tree (x) (list (* 2 x) (+  1 (* 2 x))))
 ```
 
-To make it easier to specify a goal, we define the function is as a function that returns a predicate that tests for a particular value.
-Note that is does not do the test itself.
+To make it easier to specify a goal, we define the function `is` as a function that returns a predicate that tests for a particular value.
+Note that `is` does not do the test itself.
 Rather, it returns a function that can be called to perform tests:
 
 ```lisp
@@ -806,12 +810,12 @@ Be careful - `sort` is a destructive function.)
 (defun diff (num)
   "Return the function that finds the difference from num."
   #'(lambda (x) (abs (- x num))))
-  
+
 (defun sorter (cost-fn)
   "Return a combiner function that sorts according to cost-fn."
   #'(lambda (new old)
       (sort (append new old) #'< :key cost-fn)))
-      
+
 (defun best-first-search (start goal-p successors cost-fn)
   "Search lowest cost states first until goal is reached."
   (tree-search (list start) goal-p successors (sorter cost-fn)))
@@ -844,7 +848,7 @@ It makes the "mistake" of searching 7 before 6 (because 7 is closer to 12), but 
   #'(lambda (x) (if (> x price)
               most-positive-fixnum
               (- price x))))
-	      
+
 > (best-first-search 1 (is 12) #'binary-tree (price-is-right 12)) ;; Search: (1)
 ;; Search: (3 2)
 ;; Search: (7 6 2)
@@ -929,17 +933,17 @@ Suppose we have a list of selected cities with airports, along with their positi
 (defstruct (city (:type list)) name long lat)
 
 (defparameter *cities*
-   '((Atlanta        84.23 33.45)      (Los Angeles       118.15 34.03)     
-   (Boston           71.05 42.21)      (Memphis           90.03 35.09)     
-   (Chicago          87.37 41.50)      (New York          73.58 40.47)     
-   (Denver           105.00 39.45)     (Oklahoma City     97.28 35.26)     
-   (Eugene           123.05 44.03)     (Pittsburgh        79.57 40.27)     
-   (Flagstaff        111.41 35.13)     (Quebec            71.11 46.49)     
-   (Grand Jet        108.37 39.05)     (Reno              119.49 39.30)    
-   (Houston          105.00 34.00)     (San Francisco     122.26 37.47)    
-   (Indianapolis     86.10 39.46)      (Tampa             82.27 27.57)     
-   (Jacksonville     81.40 30.22)      (Victoria          123.21 48.25)    
-   (Kansas City      94.35 39.06)      (Wilmington        77.57 34.14)))   
+   '((Atlanta        84.23 33.45)      (Los-Angeles       118.15 34.03)
+   (Boston           71.05 42.21)      (Memphis           90.03 35.09)
+   (Chicago          87.37 41.50)      (New-York          73.58 40.47)
+   (Denver           105.00 39.45)     (Oklahoma-City     97.28 35.26)
+   (Eugene           123.05 44.03)     (Pittsburgh        79.57 40.27)
+   (Flagstaff        111.41 35.13)     (Quebec            71.11 46.49)
+   (Grand-Jct        108.37 39.05)     (Reno              119.49 39.30)
+   (Houston          105.00 34.00)     (San-Francisco     122.26 37.47)
+   (Indianapolis     86.10 39.46)      (Tampa             82.27 27.57)
+   (Jacksonville     81.40 30.22)      (Victoria          123.21 48.25)
+   (Kansas-City      94.35 39.06)      (Wilmington        77.57 34.14)))
 ```
 
 This example introduces a new option to `defstruct`.
@@ -952,17 +956,16 @@ Instead of just giving the name of the structure, it is also possible to use:
 For city, the option :type is specified as `list`.
 This means that cities will be implemented as lists of three elements, as they are in the initial value for `*cities*`.
 
-The cities are shown on the map in [figure  6.1](#f0010), which has connections between all cities within the 1000 kilometer range of each other.<a id="tfn06-5"></a><sup>[5](#fn06-5)</sup>
+The cities are shown on the map in [figure 6.1](#fig-06-01), which has connections between all cities within the 1000 kilometer range of each other.<a id="tfn06-5"></a><sup>[5](#fn06-5)</sup>
 This map was drawn with the help of `air-distance`, a function that returns the distance in kilometers between two cities "as the crow flies."
 It will be defined later.
 Two other useful functions are `neighbors`, which finds all the cities within 1000 kilometers, and `city`, which maps from a name to a city.
 The former uses `find-all-if`, which was defined on [page 101](B9780080571157500030.xhtml#p101) as a synonym for `remove-if-not`.
 
-
-| []()                                  |
-|---------------------------------------|
-| ![f06-01](images/chapter6/f06-01.jpg) |
-| Figure 6.1: A Map of Some Cities      |
+| <a id="fig-06-01"></a>[]() |
+|---|
+| <img src="images/chapter6/fig-06-01.svg" onerror="this.src='images/chapter6/fig-06-01.png'; this.onerror=null;" alt="Figure 6.1" /> |
+| **Figure 6.1: A Map of Some Cities** |
 
 ```lisp
 (defun neighbors (city)
@@ -971,7 +974,7 @@ The former uses `find-all-if`, which was defined on [page 101](B9780080571157500
           (and (not (eq c city))
               (< (air-distance c city) 1000.0)))
         *cities*))
-	
+
 (defun city (name)
   "Find the city with this name."
   (assoc name *cities*))
@@ -1080,7 +1083,7 @@ Since this is a problem in solid geometry, not AI, the code is presented without
     ;; d is the straight-line chord between the two cities,
     ;; The length of the subtending arc is given by:
     (* earth-diameter (asin (/ d 2)))))
-    
+
 (defun xyz-coords (city)
   "Returns the x,y,z coordinates of a point on a sphere.
   The center is (0 0 0) and the north pole is (0 0 1)."
@@ -1089,13 +1092,13 @@ Since this is a problem in solid geometry, not AI, the code is presented without
       (list (* (cos psi) (cos phi))
             (* (cos psi) (sin phi))
             (sin psi))))
-	    
+
 (defun distance (point1 point2)
   "The Euclidean distance between two points.
   The points are coordinates in n-dimensional space."
   (sqrt (reduce #'+ (mapcar #'(lambda (a b) (expt (- a b) 2))
                 point1 point2))))
-		
+
 (defun deg->radians (deg)
   "Convert degrees and minutes to radians."
   (* (+ (truncate deg) (* (rem  deg 1) 100/60)) pi 1/180))
@@ -1108,26 +1111,26 @@ In the following examples, each call to the new version of `trip` returns a path
 
 ```lisp
 > (show-city-path (trip (city 'san-francisco) (city 'boston) 1))
-#<Path 4514.8  km: San-Francisco - Reno - Grand-Jet - Denver -
+#<Path 4514.8  km: San-Francisco - Reno - Grand-Jct - Denver -
   Kansas-City - Indianapolis - Pittsburgh - Boston  >
 > (show-city-path (trip (city 'boston) (city 'san-francisco) 1))
 #<Path 4577.3  km: Boston - Pittsburgh - Chicago - Kansas-City -
-  Denver - Grand-Jet - Reno - San-Francisco  >
+  Denver - Grand-Jct - Reno - San-Francisco  >
 > (show-city-path (trip (city 'boston) (city 'san-francisco) 3))
 #<Path 4514.8  km: Boston - Pittsburgh - Indianapolis -
-  Kansas-City - Denver - Grand-Jet - Reno - San-Francisco  >
+  Kansas-City - Denver - Grand-Jct - Reno - San-Francisco  >
 ```
 
 This example shows how search is susceptible to irregularities in the search space.
 It was easy to find the correct path from west to east, but the return trip required more search, because Flagstaff is a falsely promising step.
 In general, there may be even worse dead ends lurking in the search space.
 Look what happens when we limit the airplane's range to 700 kilometers.
-The map is shown in [figure 6.2](#f0015).
+The map is shown in [figure 6.2](#fig-06-02).
 
-| []()                                      |
-|-------------------------------------------|
-| ![f06-02](images/chapter6/f06-02.jpg)     |
-| Figure 6.2: A Map of Cities within 700 km |
+| <a id="fig-06-02"></a>[]() |
+|---|
+| <img src="images/chapter6/fig-06-02.svg" onerror="this.src='images/chapter6/fig-06-02.png'; this.onerror=null;" alt="Figure 6.2" /> |
+| **Figure 6.2: A Map of Cities within 700 km** |
 
 If we try to plan a trip from Tampa to Quebec, we can run into problems with the dead end at Wilmington, North Carolina.
 With a beam width of 1, the path to Jacksonville and then Wilmington will be tried first.
@@ -1179,14 +1182,14 @@ We also define `map-path` to iterate over a path, collecting values:
   (declare (ignore depth))
   (format stream "#<Path to ~a cost ~,lf>"
         (path-state path) (path-total-cost path)))
-	
+
 (defun show-city-path (path &optional (stream t))
   "Show the length of a path, and the cities along it."
   (format stream "#<Path ~,lf km: ~{~:(~a~)~^- ~}>"
         (path-total-cost path)
         (reverse (map-path #'city-name path)))
   (values))
-  
+
 (defun map-path (fn path)
   "Call fn on each state in the path, collecting results."
   (if (null path)
@@ -1275,18 +1278,19 @@ We will see it again in [chapters 11](B978008057115750011X.xhtml) and [18](B9780
 So far, `tree-search` has been the workhorse behind all the searching routines.
 This is curious, when we consider that the city problem involves a graph that is not a tree at all.
 The reason `tree-search` works is that any graph can be treated as a tree, if we ignore the fact that certain nodes are identical.
-For example, the graph in [figure 6.3](#f0020) can be rendered as a tree.
+For example, the graph in [figure 6.3](#fig-06-03) can be rendered as a tree.
 [Figure 6.4](#f0025) shows only the top four levels of the tree; each of the bottom nodes (except the 6s) needs to be expanded further.
 
-| []()                                  |
-|---------------------------------------|
-| ![f06-03](images/chapter6/f06-03.jpg) |
-| Figure 6.3: A Graph with Six Nodes    |
 
-| []()                                  |
-|---------------------------------------|
-| ![f06-04](images/chapter6/f06-04.jpg) |
-| Figure 6.4: The Corresponding Tree    |
+| <a id="fig-06-03"></a>[]() |
+|---|
+| <img src="images/chapter6/fig-06-03.svg" onerror="this.src='images/chapter6/fig-06-03.png'; this.onerror=null;" alt="Figure 6.3" /> |
+| **Figure 6.3: A Graph with Six Nodes** |
+
+| <a id="fig-06-04"></a>[]() |
+|---|
+| <img src="images/chapter6/fig-06-04.svg" onerror="this.src='images/chapter6/fig-06-04.png'; this.onerror=null;" alt="Figure 6.4" /> |
+| **Figure 6.4: The Corresponding Tree** |
 
 In searching for paths through the graph of cities, we were implicitly turning the graph into a tree.
 That is, if `tree-search` found two paths from Pittsburgh to Kansas City (via Chicago or Indianapolis), then it would treat them as two independent paths, just as if there were two distinct Kansas Cities.
@@ -1314,7 +1318,7 @@ The difference between `graph-search` and `tree-search` is in the call to `new-s
             goal-p successors combiner state=
             (adjoin (first states) old-states
                       :test state=)))))
-		      
+
 (defun new-states (states successors state= old-states)
   "Generate successor states that have not been seen before."
   (remove-if
@@ -1360,7 +1364,7 @@ If we have a cost function, then the answer is easy: keep the path with the chea
 Best-first search of a graph removing duplicate states is called A* search.
 
 A* search is more complicated than `graph-search` because of the need both to add and to delete paths to the lists of current and old paths.
-For each new successor state, there are three possibilites.
+For each new successor state, there are three possibilities.
 The new state may be in the list of current paths, in the list of old paths, or in neither.
 Within the first two cases, there are two subcases.
 If the new path is more expensive than the old one, then ignore the new path - it can not lead to a better solution.
@@ -1418,16 +1422,16 @@ Here are the three auxiliary functions:
 (defun find-path (state paths state=)
   "Find the path with this state among a list of paths."
   (find state paths :key #'path-state :test state=))
-  
+
 (defun better-path (pathl path2)
   "Is path1 cheaper than path2?"
   (< (path-total-cost path1) (path-total-cost path2)))
-  
+
 (defun insert-path (path paths)
   "Put path into the right position, sorted by total cost."
   ;; MERGE is a built-in function
   (merge 'list (list path) paths #'< :key #'path-total-cost))
-  
+
 (defun path-states (path)
   "Collect the states along this path."
   (if (null path)
@@ -1436,7 +1440,7 @@ Here are the three auxiliary functions:
             (path-states (path-previous path)))))
 ```
 
-Below we use `a*-search` to search for 6 in the graph previously shown in [figure 6.3](#f0020).
+Below we use `a*-search` to search for 6 in the graph previously shown in [figure 6.3](#fig-06-03).
 The cost function is a constant 1 for each step.
 In other words, the total cost is the length of the path.
 The heuristic evaluation function is just the difference from the goal.
@@ -1486,12 +1490,12 @@ Here is a function that finds all solutions, using beam search:
 The GPS program can be seen as a problem in search.
 For example, in the three-block blocks world, there are only 13 different states.
 They could be arranged in a graph and searched just as we searched for a route between cities.
-[Figure 6.5](#f0030) shows this graph.
+[Figure 6.5](#fig-06-05) shows this graph.
 
-| []()                                    |
-|-----------------------------------------|
-| ![f06-05](images/chapter6/f06-05.jpg)   |
-| Figure 6.5: The Blocks World as a Graph |
+| <a id="fig-06-05"></a>[]() |
+|---|
+| <img src="images/chapter6/fig-06-05.svg" onerror="this.src='images/chapter6/fig-06-05.png'; this.onerror=null;" alt="Figure 6.5" /> |
+| **Figure 6.5: The Blocks World as a Graph** |
 
 The function `search-gps` does just that.
 Like the gps function on [page 135](B9780080571157500042.xhtml#p135), it computes a final state and then picks out the actions that lead to that state.
@@ -1573,7 +1577,7 @@ Iterative deepening was first presented by [Korf (1985)](B9780080571157500285.xh
 
 ## 6.7 Exercises
 
-**Exercise  6**.**3** [**m**] Write a version of `interaetive-interpreter` that is more general than the one defined in this chapter.
+**Exercise  6**.**3** [**m**] Write a version of `interactive-interpreter` that is more general than the one defined in this chapter.
 Decide what features can be specified, and provide defaults for them.
 
 **Exercise  6**.**4** [**m**] Define a version of `compose` that allows any number of arguments, not just two.
@@ -1658,9 +1662,9 @@ Here is another version that does all of the above and also handles multiple val
       (setf - (funcall read input)
           vals (multiple-value-list (funcall eval -)))
       ;; Now update the history variables
-   (setf +++ ++     /// //     *** (first ///)   
-         ++ +       // /       ** (first //)     
-         + -        / vals     * (first /)) 
+   (setf +++ ++     /// //     *** (first ///)
+         ++ +       // /       ** (first //)
+         + -        / vals     * (first /))
       ;; Finally print the computed value(s)
       (dolist (value vals)
         (funcall print value output)))))
@@ -1671,7 +1675,7 @@ Here is another version that does all of the above and also handles multiple val
 ```lisp
 (defun compose (&rest functions)
   "Return the function that is the composition of all the args. i.e.
-(compose f g h) = (lambda (x) (f (g (h x))))." 
+(compose f g h) = (lambda (x) (f (g (h x))))."
 #'(lambda (x)
       (reduce #'funcall functions :from-end t :initial-value x)))
 ```
