@@ -88,12 +88,12 @@ A glossary of the program is in [figure  16.1](#f0010).
 ## 16.1 Dealing with Uncertainty
 
 EMYCIN deals with uncertainty by replacing the two boolean values, true and false, with a range of values called *certainty factors*.
-These are numbers from -  1 (false) to +  1 (true), with 0 representing a complete unknown.
+These are numbers from -1 (false) to +1 (true), with 0 representing a complete unknown.
 In Lisp:
 
 ```lisp
-(defconstant true +  1.0)
-(defconstant false -  1.0)
+(defconstant true   +1.0)
+(defconstant false  -1.0)
 (defconstant unknown 0.0)
 ```
 
@@ -127,7 +127,7 @@ However, it should be clear that certainty factors are not the same thing as pro
 Certainty factors attempt to deal with disbelief as well as belief, but they do not deal with dependence and independence.
 The EMYCIN combination function has a number of desirable properties:
 
-*   It always computes a number between -  1 and +  1.
+*   It always computes a number between -1 and +1.
 
 *   Combining unknown (zero) with anything leaves it unchanged.
 
@@ -155,7 +155,7 @@ A and B => C
 
 Combining A and B in this case is quite different from combining them when they are in separate rules.
 EMYCIN chooses to combine conjunctions by taking the minimum of each conjunct's certainty factor.
-If certainty factors were probabilities, this would be equivalent to assumming dependence between conjuncts in a rule.
+If certainty factors were probabilities, this would be equivalent to assuming dependence between conjuncts in a rule.
 (If the conjuncts were independent, then the product of the probabilities would be the correct answer.) So EMYCIN is making the quite reasonable (but sometimes incorrect) assumption that conditions that are tied together in a single rule will be dependent on one another, while conditions in separate rules are independent.
 
 The final complication is that rules themselves may be uncertain.
@@ -287,7 +287,7 @@ The system also makes sure that the same question is never asked twice.
 The following function `ask-vals` prints a query that asks for the parameter of an instance, and reads from the user the value or a list of values with associated certainty factors.
 The function first looks at the data base to make sure the question has not been asked before.
 It then checks each value and certainty factor to see if each is of the correct type, and it also allows the user to ask certain questions.
-A ? reply will show what type answer is expected.
+A `?` reply will show what type answer is expected.
 `Rule` will show the current rule that the system is working on.
 `Why` also shows the current rule, but it explains in more detail what the system knows and is trying to find out.
 Finally, `help` prints the following summary:
@@ -517,7 +517,7 @@ In Prolog, a goal can be any expression, and appropriate rules are those whose h
 If any appropriate rule succeeds, then the goal is known to be true.
 In EMYCIN, a rule might give a goal a certainty of .99, but we still have to consider all the other rules that are appropriate to the goal, because they might bring the certainty down below the cutoff threshold.
 Thus, EMYCIN always gathers all evidence relating to a parameter/instance pair first, and only evaluates the goal after all the evidence is in.
-For example, if the goal was (`temp patient  > 98.6`), EMYCIN would first evaluate all rules with conclusions about the current patient's temperature, and only then compare the temperature to 98.6.
+For example, if the goal was (`temp patient > 98.6`), EMYCIN would first evaluate all rules with conclusions about the current patient's temperature, and only then compare the temperature to 98.6.
 
 Another way of looking at it is that Prolog has the luxury of searching depth-first, because the semantics of Prolog rules is such that if any rule says a goal is true, then it is true.
 EMYCIN must search breadth-first, because a goal with certainty of .99 might turn out to be false when more evidence is considered.
@@ -535,26 +535,21 @@ If we did not have this check, then the system could start asking the user quest
 So we waste some of the program's time (checking each premise twice) to save the more valuable user time.
 (The function `eval-condition` takes an optional argument specifying if we should recursively ask questions in trying to accept or reject a condition.)
 
-If no premise can be rejected, then evaluate each premise in turn with `evaluate-condition`, keeping track of the accumulated certainty factor with `cf`-and (which is currently just `min`), and cutting off evaluation when the certainty factor drops below threshold.
+If no premise can be rejected, then evaluate each premise in turn with `evaluate-condition`, keeping track of the accumulated certainty factor with `cf-and` (which is currently just `min`), and cutting off evaluation when the certainty factor drops below threshold.
 If the premises evaluate true, then add the conclusions to the data base.
 The calling sequence looks like this.
 Note that the recursive call to `find-out` is what enables chaining to occur:
 
-`find-out`                 ;  To find out a parameter for an instance:
-
-`  get-db`                 ;    See if it is cached in the data base
-
-`  ask-vals`               ;    See if the user knows the answer
-
-`  use-rules`              ;    See if there is a rule for it:
-
-`      reject-premise`    ;      See if the rule is outright false
-
-`      satisfy-premises`  ;      Or see if each condition is true:
-
-`          eval-condition` ;        Evaluate each condition
-
-`            find-out`      ;          By finding the parameter's values
+```lisp
+find-out                  ;  To find out a parameter for an instance:
+  get-db                  ;    See if it is cached in the data base
+  ask-vals                ;    See if the user knows the answer
+  use-rules               ;    See if there is a rule for it:
+      reject-premise      ;      See if the rule is outright false
+      satisfy-premises    ;      Or see if each condition is true:
+          eval-condition  ;        Evaluate each condition
+            find-out      ;          By finding the parameter's values
+```
 
 Before showing the interpreter, here is the structure definition for rules, along with the functions to maintain a data base of rules:
 
@@ -631,7 +626,7 @@ The function `eval-condition` evaluates a single condition, returning its certai
 If `find-out-p` is true, it first calls `find-out`, which may either query the user or apply appropriate rules.
 If `find-out-p` is false, it evaluates the condition using the current state of the data base.
 It does this by looking at each stored value for the parameter/instance pair and evaluating the operator on it.
-For example, if the condition is (`temp patient > 98.6`) and the values for `temp` for the current patient are (`(98 .3) (99 .6) (100 .1)`), then `eval-condition` will test each of the values 98, 99, and 100 against 98.6 using the > operator.
+For example, if the condition is `(temp patient > 98.6)`) and the values for `temp` for the current patient are `((98 .3) (99 .6) (100 .1))`, then `eval-condition` will test each of the values 98, 99, and 100 against 98.6 using the `>` operator.
 This test will succeed twice, so the resulting certainty factor is .6 + .1 = .7.
 
 The function `reject-premise` is designed as a quick test to eliminate a rule.
@@ -668,7 +663,8 @@ Note that `is` is the only operator allowed in conclusions, `is` is just an alia
 ```
 
 All conditions are of the form: (*parameter instance operator value*).
-For example: `(morphology organism is rod).` The function `parse-condition` turns a list of this form into four values.
+For example: `(morphology organism is rod)`.
+The function `parse-condition` turns a list of this form into four values.
 The trick is that it uses the data base to return the current instance of the context, rather than the context name itself:
 
 ```lisp
@@ -769,7 +765,7 @@ It also checks that conclusions use only the operator `is`:
 ```
 
 The real EMYCIN had an interactive environment that prompted the expert for each context, parameter, and rule.
-Randall Davis ([1977](B9780080571157500285.xhtml#bb0290), [1979](B9780080571157500285.xhtml#bb0295), [Davis and Lenat 1982](B9780080571157500285.xhtml#bb0300)) describes the TEIRESIAS program, which helped experts enter and debug rules.
+Randall Davis ([1977](bibliography.md#bb0290), [1979](bibliography.md#bb0295), [Davis and Lenat 1982](bibliography.md#bb0300)) describes the TEIRESIAS program, which helped experts enter and debug rules.
 
 ## 16.7 Interacting with the Client
 
@@ -943,7 +939,7 @@ Each parameter is given a type, and most are given prompts to improve the natura
 ```
 
 Now we need some rules to help determine the identity of the organisms.
-The following rules are taken from [Shortliffe 1976](B9780080571157500285.xhtml#bb1100).
+The following rules are taken from [Shortliffe 1976](bibliography.md#bb1100).
 The rule numbers refer to the pages on which they are listed.
 The real MYCIN had about 400 rules, dealing with a much wider variety of premises and conclusions.
 
@@ -1013,7 +1009,7 @@ A GRAM must be of type (MEMBER ACID-FAST POS NEG)
 The gram stain of ORGANISM-1: neg
 ```
 
-The user typed ? to see the list of valid responses.
+The user typed `?` to see the list of valid responses.
 The dialog continues:
 
 ```lisp
@@ -1089,7 +1085,7 @@ Is there another CULTURE? (Y or N) N
 Is there another PATIENT? (Y or N) N
 ```
 
-The set of rules listed above do not demonstrate two important features of the system: the ability to backward-chain, and the ability to use operators other than is in premises.
+The set of rules listed above do not demonstrate two important features of the system: the ability to backward-chain, and the ability to use operators other than `is` in premises.
 
 If we add the following three rules and repeat the case shown above, then evaluating rule 75 will back-chain to rule 1, 2, and finally 3 trying to determine if the patient is a compromised host.
 Note that the question asked will be "What is Sylvia Fischer's white blood cell count?" and not "Is the white blood cell count of Sylvia Fischer < 2.5?" The latter question would suffice for the premise at hand, but it would not be as useful for other rules that might refer to the WBC.
@@ -1122,18 +1118,18 @@ Before MYCIN, most reasoning with uncertainty was done using probability theory.
 The laws of probability-in particular, Bayes's law-provide a well-founded mathematical formalism that is not subject to the inconsistencies of certainty factors.
 Indeed, probability theory can be shown to be the only formalism that leads to rational behavior, in the sense that if you have to make a series of bets on some uncertain events, combining information with probability theory will give you the highest expected value for your bets.
 Despite this, probability theory was largely set aside in the mid-1970s.
-The argument made by [Shortliffe and Buchanan (1975)](B9780080571157500285.xhtml#bb1105) was that probability theory required too many conditional probabilities, and that people were not good at estimating these.
+The argument made by [Shortliffe and Buchanan (1975)](bibliography.md#bb1105) was that probability theory required too many conditional probabilities, and that people were not good at estimating these.
 They argued that certainty factors were intuitively easier to deal with.
 Other researchers of the time shared this view.
 Shafer, with later refinements by Dempster, created a theory of belief functions that, like certainty factors, represented a combination of the belief for and against an event.
-Instead of representing an event by a single probability or certainty, Dempster-Shafer theory maintains two numbers, which are analagous to the lower and upper bound on the probability.
+Instead of representing an event by a single probability or certainty, Dempster-Shafer theory maintains two numbers, which are analogous to the lower and upper bound on the probability.
 Instead of a single number like .5, Dempster-Shafer theory would have an interval like [.4,.6] to represent a range of probabilities.
 A complete lack of knowledge would be represented by the range [0,1].
 A great deal of effort in the late 1970s and early 1980s was invested in these and other nonprobabilistic theories.
 Another example is Zadeh's fuzzy set theory, which is also based on intervals.
 
 There is ample evidence that people have difficulty with problems involving probability.
-In a very entertaining and thought-provoking series of articles, Tversky and Kahneman ([1974](B9780080571157500285.xhtml#bb1245), [1983](B9780080571157500285.xhtml#bb1250), [1986](B9780080571157500285.xhtml#bb1255)) show how people make irrational choices when faced with problems that are quite simple from a mathematical viewpoint.
+In a very entertaining and thought-provoking series of articles, Tversky and Kahneman ([1974](bibliography.md#bb1245), [1983](bibliography.md#bb1250), [1986](bibliography.md#bb1255)) show how people make irrational choices when faced with problems that are quite simple from a mathematical viewpoint.
 They liken these errors in choice to errors in visual perception caused by optical illusions.
 Even trained doctors and statisticians are subject to these errors.
 
@@ -1146,28 +1142,28 @@ Fortunately, Dominique happens to be a Bayesian, and quickly reassures Adrian th
 The reasoning is as follows: Take 10,001 people at random.
 Of these, only 1 is expected to have the disease.
 That person could certainly expect to test positive for the disease.
-But if the other 10,000 people all took the blood test, then 1 % of them, or 100 people would also test positive.
+But if the other 10,000 people all took the blood test, then 1% of them, or 100 people would also test positive.
 Thus, the chance of actually having the disease given that one tests positive is 1/101.
 Doctors are trained in this kind of analysis, but unfortunately many of them continue to reason more like Adrian than Dominique.
 
 In the late 1980s, the tide started to turn back to subjective Bayesian probability theory.
-[Cheeseman (1985)](B9780080571157500285.xhtml#bb0185) showed that, while Dempster-Shafer theory looks like it can, in fact it cannot help you make better decisions than probability theory.
-[Heckerman (1986)](B9780080571157500285.xhtml#bb0525) re-examined MYCIN's certainty factors, showing how they could be interpreted as probabilities.
-Judea [Pearl's 1988](B9780080571157500285.xhtml#bb0935) book is an eloquent defense of probability theory.
+[Cheeseman (1985)](bibliography.md#bb0185) showed that, while Dempster-Shafer theory looks like it can, in fact it cannot help you make better decisions than probability theory.
+[Heckerman (1986)](bibliography.md#bb0525) re-examined MYCIN's certainty factors, showing how they could be interpreted as probabilities.
+Judea [Pearl's 1988](bibliography.md#bb0935) book is an eloquent defense of probability theory.
 He shows that there are efficient algorithms for combining and propagating probabilities, as long as the network of interdependencies does not contain loops.
 It seems likely that uncertain reasoning in the 1990s will be based increasingly on Bayesian probability theory.
 
 ## 16.10 History and References
 
-The MYCIN project is well documented in [Buchanan and Shortliffe 1984](B9780080571157500285.xhtml#bb0145).
-An earlier book, [Shortliffe 1976](B9780080571157500285.xhtml#bb1100), is interesting mainly for historical purposes.
-Good introductions to expert systems in general include [Weiss and Kulikowski 1984](B9780080571157500285.xhtml#bb1365), [Waterman 1986](B9780080571157500285.xhtml#bb1345), [Luger and Stubblefield 1989](B9780080571157500285.xhtml#bb0760), and [Jackson 1990](B9780080571157500285.xhtml#bb0580).
+The MYCIN project is well documented in [Buchanan and Shortliffe 1984](bibliography.md#bb0145).
+An earlier book, [Shortliffe 1976](bibliography.md#bb1100), is interesting mainly for historical purposes.
+Good introductions to expert systems in general include [Weiss and Kulikowski 1984](bibliography.md#bb1365), [Waterman 1986](bibliography.md#bb1345), [Luger and Stubblefield 1989](bibliography.md#bb0760), and [Jackson 1990](bibliography.md#bb0580).
 
-Dempster-Shafer evidence theory is presented enthusiastically in [Gordon and Shortliffe 1984](B9780080571157500285.xhtml#bb0485) and in a critical light in [Pearl 1989](B9780080571157500285.xhtml#bb0940)/1978.
-Fuzzy set theory is presented in Zadeh 1979 and [Dubois and Prade 1988](B9780080571157500285.xhtml#bb0350).
+Dempster-Shafer evidence theory is presented enthusiastically in [Gordon and Shortliffe 1984](bibliography.md#bb0485) and in a critical light in [Pearl 1989](bibliography.md#bb0940)/1978.
+Fuzzy set theory is presented in Zadeh 1979 and [Dubois and Prade 1988](bibliography.md#bb0350).
 
-[Pearl (1988)](B9780080571157500285.xhtml#bb0935) captures most of the important points that lead to the renaissance of probability theory.
-[Shafer and Pearl 1990](B9780080571157500285.xhtml#bb1090) is a balanced collection of papers on all kinds of uncertain reasoning.
+[Pearl (1988)](bibliography.md#bb0935) captures most of the important points that lead to the renaissance of probability theory.
+[Shafer and Pearl 1990](bibliography.md#bb1090) is a balanced collection of papers on all kinds of uncertain reasoning.
 
 ## 16.11 Exercises
 
@@ -1193,7 +1189,7 @@ Was it easier to develop your system with EMYCIN than it would have been without
 **Exercise  16.6 [s]** It is said that an early version of MYCIN asked if the patient was pregnant, even though the patient was male.
 Write a rule that would fix this problem.
 
-**Exercise  16.7 [m]** To a yes/no question, what is the difference between yes and `(no-1)` ? What does this suggest?
+**Exercise  16.7 [m]** To a yes/no question, what is the difference between `yes` and `(no-1)`? What does this suggest?
 
 **Exercise  16.8 [m]** What happens if the user types `why` to the prompt about the patient's name?
 What happens if the expert wants to have more than one context with a name parameter?
@@ -1201,7 +1197,7 @@ If there is a problem, fix it.
 
 The remaining exercises discuss extensions that were in the original EMYCIN, but were not implemented in our version.
 Implementing all the extensions will result in a system that is very close to the full power of EMYCIN.
-These extensions are discussed in [chapter 3](B9780080571157500030.xhtml) of [Buchanan and Shortliffe 1984](B9780080571157500285.xhtml#bb0145).
+These extensions are discussed in chapter 3 of [Buchanan and Shortliffe 1984](bibliography.md#bb0145).
 
 **Exercise  16.9 [h]** Add a spelling corrector to `ask-vals`.
 If the user enters an invalid reply, and the parameter type is a `member` expression, check if the reply is "close" in spelling to one of the valid values, and if so, use that value.
@@ -1261,7 +1257,7 @@ Eventually, the need arose for a rule that said, "If any of the organisms in a c
 Implement a mechanism that keeps track of the author and date of creation of each rule, and allows the author to add documentation explaining the rationale for the rule.
 
 **Exercise  16.16 [m]** It is difficult to come up with the perfect prompt for each parameter.
-One solution is not to insist that one prompt fits all users, but rather to allow the expert to supply three different prompts: a normal prompt, a verbose prompt (or reprompt) for when the user replies with a ?, and a terse prompt for the experienced user.
+One solution is not to insist that one prompt fits all users, but rather to allow the expert to supply three different prompts: a normal prompt, a verbose prompt (or reprompt) for when the user replies with a `?`, and a terse prompt for the experienced user.
 Modify `defparm` to accommodate this concept, add a command for the user to ask for the terse prompts, and change `ask-vals` to use the proper prompt.
 
 The remaining exercises cover three additional replies the user can make: `how`, `stop`, and `change`.
@@ -1271,7 +1267,7 @@ The user can ask how the value of a particular parameter/instance pair was deter
 Implement this mechanism.
 It will require storing additional information in the data base.
 
-**Exercise  16.18 [m]** There was also a stop command that immediately halted the session.
+**Exercise  16.18 [m]** There was also a `stop` command that immediately halted the session.
 Implement it.
 
 **Exercise  16.19 [d]** The original EMYCIN also had a `change` command to allow the user to change the answer to certain questions without starting all over.
@@ -1299,7 +1295,7 @@ A more sophisticated reasoner would realize that multiple copies of a newspaper 
 298
 ```
 
-**Answer 16.2** The `defrule` expandsto (`make-rule :number '101 :cf true ...`); that is, the certainty factor is unquoted, so it is already legal to use true as a certainty factor!
+**Answer 16.2** The `defrule` expands to `(make-rule :number '101 :cf true ...)`; that is, the certainty factor is unquoted, so it is already legal to use `true` as a certainty factor!
 To support `probably` and other hedges, just define new constants.
 
 **Answer 16.4** Just make the default parameter type be `nil` (by changing `t` to `nil` in `parm-type`).
@@ -1316,7 +1312,7 @@ Then any rule that uses an undefined parameter will automatically generate a war
 **Answer 16.7** Logically, there should be no difference, but to EMYCIN there is a big difference.
 EMYCIN would not complain if you answered `(yes 1 no 1)`.
 This suggests that the system should have some way of dealing with mutually exclusive answers.
-One way would be to accept only yes responses for Boolean parameters, but have the input routine translate no to `(yes -1)` and `(no` *cf*) to `(yes 1-`*cf*).
+One way would be to accept only yes responses for Boolean parameters, but have the input routine translate `no` to `(yes -1)` and `(no` *cf*) to `(yes 1-`*cf*).
 Another possibility would be to have `update-cf` check to see if any certainty factor on a mutually exclusive value is 1, and if so, change the other values to -1.
 
 **Answer 16.18** Add the clause `(stop (throw 'stop nil))` to the case statement in `ask-vals` and wrap a `(catch 'stop ...)` around the code in `emycin`.

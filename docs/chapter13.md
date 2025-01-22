@@ -42,7 +42,7 @@ Examples of object-oriented languages are Simula, C++, and CLOS, the Common Lisp
 This chapter will first introduce object-oriented programming in general, and then concentrate on the Common Lisp Object System.
 
 Many people are promoting object-oriented programming as the solution to the software development problem, but it is hard to get people to agree on just what object-orientation means.
-[Peter Wegner 1987](B9780080571157500285.xhtml#bb1355) proposes the following formula as a definition:
+[Peter Wegner 1987](bibliography.md#bb1355) proposes the following formula as a definition:
 
 *Object-orientation = Objects + Classes + Inheritance*
 
@@ -116,7 +116,8 @@ First, the program is written in traditional procedural style:
            (account-balance account))))
 ```
 
-We can create new bank accounts with `make-account` and modify them with `account-withdraw, account-deposit,` and `account-interest.` This is a simple problem, and this simple solution suffices.
+We can create new bank accounts with `make-account` and modify them with `account-withdraw`, `account-deposit`, and `account-interest`.
+This is a simple problem, and this simple solution suffices.
 Problems appear when we change the specification of the problem, or when we envision ways that this implementation could be inadvertently used in error.
 For example, suppose a programmer looks at the `account` structure and decides to use `(decf (account-balance account)`) directly instead of going through the `account-withdraw` function.
 This could lead to negative account balances, which were not intended.
@@ -154,7 +155,7 @@ The advantage of this approach is that account objects are completely encapsulat
 We have a guarantee that no other code can manipulate the information in the account in any other way.<a id="tfn13-1"></a><sup>[1](#fn13-1)</sup>
 
 The function `get-method` finds the method that implements a message for a given object.
-The function send gets the method and applies it to a list of arguments.
+The function `send` gets the method and applies it to a list of arguments.
 The name send comes from the Flavors object-oriented system, which is discussed in the history section ([page 456](#p456)).
 
 ```lisp
@@ -170,26 +171,23 @@ The name send comes from the Flavors object-oriented system, which is discussed 
 
 Here is an example of the use of `new-account` and `send`:
 
-`> (setf acct (new-account "J.
-Random Customer" 1000.00))`=>
-
 ```lisp
+> (setf acct (new-account "J. Random Customer" 1000.00)) =>
 #<CLOSURE 23652465>
+
 > (send acct 'withdraw 500.00) => 500.0
+
 > (send acct 'deposit 123.45) => 623.45
-```
 
-`> (send acct 'name) => "J.
-Random Customer"`
+> (send acct 'name) => "J. Random Customer"
 
-```lisp
 > (send acct 'balance) => 623.45
 ```
 
 ## 13.3 Generic Functions
 
-The send syntax is awkward, as it is different from the normal Lisp function-calling syntax, and it doesn't fit in with the other Lisp tools.
-For example, we might like to say (`mapcar 'balance accounts`), but with messages we would have to write that as:
+The `send` syntax is awkward, as it is different from the normal Lisp function-calling syntax, and it doesn't fit in with the other Lisp tools.
+For example, we might like to say `(mapcar 'balance accounts)`, but with messages we would have to write that as:
 
 ```lisp
 (mapcar #'(lambda (acct) (send acct 'balance)) accounts)
@@ -456,7 +454,7 @@ The class-options are rarely used.
         :reader interest-rate)))
 ```
 
-In the definition of account, we see that the list of superclasses is empty, because account does not inherit from any classes.
+In the definition of `account`, we see that the list of superclasses is empty, because `account` does not inherit from any classes.
 There are three slot specifiers, for the `name`, `balance`, and `interest-rate` slots.
 Each slot name can be followed by optional keyword/value pairs defining how the slot is used.
 The `name` slot has an `:initarg` option, which says that the name can be specified when a new account is created with `make-instance`.
@@ -478,7 +476,7 @@ Here we see the creation of an object, and the application of the automatically 
 
 CLOS differs from most object-oriented systems in that methods are defined separately from classes.
 To define a method (besides the ones defined automatically by `:reader`, `:writer`, or `:accessor` options) we use the `defmethod` macro.
-It is similar to defun in form:
+It is similar to `defun` in form:
 
 `(defmethod` *method-name* (*parameter...*) *body...*)
 
@@ -506,7 +504,8 @@ With CLOS it is easy to define a `limited-account` as a subclass of `account`, a
 ```
 
 Note the use of `call-next-method` to invoke the `withdraw` method for the `account` class.
-Also note that all the other methods for accounts automatically work on instances of the class limited-account, because it is defined to inherit from `account.` In the following example, we show that the `name` method is inherited, that the `withdraw` method for `limited-account` is invoked first, and that the `withdraw` method for `account` is invoked by the `call-next-method` function:
+Also note that all the other methods for accounts automatically work on instances of the class limited-account, because it is defined to inherit from `account`.
+In the following example, we show that the `name` method is inherited, that the `withdraw` method for `limited-account` is invoked first, and that the `withdraw` method for `account` is invoked by the `call-next-method` function:
 
 ```lisp
 > (setf a2 (make-instance 'limited-account
@@ -521,7 +520,8 @@ Also note that all the other methods for accounts automatically work on instance
 In general, there may be several methods appropriate to a given message.
 In that case, all the appropriate methods are gathered together and sorted, most specific first.
 The most specific method is then called.
-That is why the method for `limited-account` is called first rather than the method for `account.` The function `call-next-method` can be used within the body of a method to call the next most specific method.
+That is why the method for `limited-account` is called first rather than the method for `account`.
+The function `call-next-method` can be used within the body of a method to call the next most specific method.
 
 The complete story is actually even more complicated than this.
 As one example of the complication, consider the class `audited-account`, which prints and keeps a trail of all deposits and withdrawals.
@@ -543,7 +543,7 @@ In general, there might be several of each kind of method.
 In that case, all the `:before` methods are called in order, most specific first.
 Then the most specific primary method is called.
 It may choose to invoke `call-next-method` to get at the other methods.
-(It is an error for a `:before` or `:after` method to use `call-next-method.)`
+(It is an error for a `:before` or `:after` method to use `call-next-method`.)
 Finally, all the `:after` methods are called, least specific first.
 
 The values from the `:before` and `:after` methods are ignored, and the value from the primary method is returned.
@@ -570,7 +570,7 @@ But once the writer function is defined it can be used anywhere, so an unscrupul
 ## 13.8 A CLOS Example: Searching Tools
 
 CLOS is most appropriate whenever there are several types that share related behavior.
-A good example of an application that fits this description is the set of searching tools defined in [section 6.4](B9780080571157500066.xhtml#s0025).
+A good example of an application that fits this description is the set of searching tools defined in [section 6.4](chapter6.md#s0025).
 There we defined functions for breadth-first, depth-first, and best-first search, as well as tree- and graph-based search.
 We also defined functions to search in particular domains, such as planning a route between cities.
 
@@ -589,7 +589,7 @@ The basic class, `problem`, contains a single-instance variable to hold the unex
  ((states :initarg :states :accessor problem-states)))
 ```
 
-The function searcher is similar to the function `tree-search` of [section 6.4](B9780080571157500066.xhtml#s0025).
+The function searcher is similar to the function `tree-search` of [section 6.4](chapter6.md#s0025).
 The main difference is that searcher uses generic functions instead of passing around functional arguments.
 
 ```lisp
@@ -606,7 +606,7 @@ The main difference is that searcher uses generic functions instead of passing a
       (searcher prob))))
 ```
 
-searcher does not assume that the problem states are organized in a list; rather, it uses the generic function `no-states-p` to test if there are any states, `pop-state` to remove and return the first state, and `current-state` to access the first state.
+`searcher` does not assume that the problem states are organized in a list; rather, it uses the generic function `no-states-p` to test if there are any states, `pop-state` to remove and return the first state, and `current-state` to access the first state.
 For the basic `problem` class, we will in fact implement the states as a list, but another class of problem is free to use another representation.
 
 ```lisp
@@ -630,7 +630,7 @@ It is a `:before` method because we want to see the output before carrying out t
  (dbg 'search ";; Search: ~a" (problem-states prob)))
 ```
 
-The generic functions that remain to be defined are `goal-p, probl em-combiner,` and `problem-successors`.
+The generic functions that remain to be defined are `goal-p`, `problem-combiner`, and `problem-successors`.
 We will address `goal-p` first, by recognizing that for many problems we will be searching for a state that is `eql` to a specified goal state.
 We define the class `eql-problem` to refer to such problems, and specify `goal-p` for that class.
 Note that we make it possible to specify the goal when a problem is created, but not to change the goal:
@@ -666,7 +666,7 @@ But Lisp provides such nice list-manipulation primitives that it is difficult to
 Of course, the user who defines a new implementation for `problem-states` could just redefine `problem-combiner` for the offending classes, but this is precisely what object-oriented programming is designed to avoid: specializing one abstraction (states) should not force us to change anything in another abstraction (search strategy).
 
 The last step is to define a class that represents a particular domain, and define `problem-successors` for that domain.
-As the first example, consider the simple binary tree search from [section 6.4](B9780080571157500066.xhtml#s0025).
+As the first example, consider the simple binary tree search from [section 6.4](chapter6.md#s0025).
 Naturally, this gets represented as a class:
 
 ```lisp
@@ -677,7 +677,7 @@ Naturally, this gets represented as a class:
 ```
 
 Now suppose we want to solve a binary-tree problem with breadth-first search, searching for a particular goal.
-Simply create a class that mixes in `binary-tree-problem, eql-problem` and `bfs-problem,` create an instance of that class, and call `searcher` on that instance:
+Simply create a class that mixes in `binary-tree-problem`, `eql-problem` and `bfs-problem,` create an instance of that class, and call `searcher` on that instance:
 
 ```lisp
 (defclass binary-tree-eql-bfs-problem
@@ -725,7 +725,7 @@ The following is a `cost-fn` that is reasonable for any `eql-problem` dealing wi
 
 Beam search is a modification of best-first search where all but the best *b* states are thrown away on each iteration.
 A beam search problem is represented by a class where the instance variable `beam-width` holds the parameter *b*.
-If this nil, then full best-first search is done.
+If this is nil, then full best-first search is done.
 Beam search is implemented by an `:around` method on `problem-combiner`.
 It calls the next method to get the list of states produced by best-first search, and then extracts the first *b* elements.
 
@@ -761,7 +761,7 @@ As usual, we have to make up another class to represent this type of problem:
 ```
 
 So far the case for CLOS has not been compelling.
-The code in this section duplicates the functionality of code in [section 6.4](B9780080571157500066.xhtml#s0025), but the CLOS code tends to be more verbose, and it is somewhat disturbing that we had to make up so many long class names.
+The code in this section duplicates the functionality of code in [section 6.4](chapter6.md#s0025), but the CLOS code tends to be more verbose, and it is somewhat disturbing that we had to make up so many long class names.
 However, this verbosity leads to flexibility, and it is easier to extend the CLOS code by adding new specialized classes.
 It is useful to make a distinction between the systems programmer and the applications programmer.
 The systems programmer would supply a library of classes like `dfs-problem` and generic functions like `searcher`.
@@ -769,7 +769,7 @@ The applications programmer then just picks what is needed from the library.
 From the following we see that it is not too difficult to pick out the right code to define a trip-planning searcher.
 Compare this with the definition of `trip` on page 198 to see if you prefer CLOS in this case.
 The main difference is that here we say that the cost function is `air-distance` and the successors are the `neighbors` by defining methods; in `trip` we did it by passing parameters.
-The latter is a little more succint, but the former may be more clear, especially as the number of parameters grows.
+The latter is a little more succinct, but the former may be more clear, especially as the number of parameters grows.
 
 ```lisp
 (defclass trip-problem (binary-tree-eql-best-beam-problem)
@@ -867,7 +867,7 @@ len(L.N). NI is N+1.
 Bertrand Meyer, in his book on the object-oriented language Eiffel (1988), lists five qualities that contribute to software quality:
 
 *   *Correctness*.
-Clearly, a correct program is of the upmost importance.
+Clearly, a correct program is of the utmost importance.
 
 *   *Robustness*.
 Programs should continue to function in a reasonable manner even for input that is beyond the original specifications.
@@ -909,7 +909,7 @@ Thus, an object-oriented program will probably be compatible with other programs
 
 ## 13.11 History and References
 
-The first object-oriented language was Simula, which was designed by Ole-Johan Dahl and Krysten Nygaard ([1966](B9780080571157500285.xhtml#bb0265), [Nygaard and Dahl 1981](B9780080571157500285.xhtml#bb0920)) as an extension of Algol 60.
+The first object-oriented language was Simula, which was designed by Ole-Johan Dahl and Krysten Nygaard ([1966](bibliography.md#bb0265), [Nygaard and Dahl 1981](bibliography.md#bb0920)) as an extension of Algol 60.
 It is still in use today, mostly in Norway and Sweden.
 Simula provides the ability to define classes with single inheritance.
 Methods can be inherited from a superclass or overridden by a subclass.
@@ -918,8 +918,8 @@ Although Simula is a general-purpose language, it provides special support for s
 The built-in class `simulation` allows a programmer to keep track of simulated time while running a set of processes as coroutines.
 
 In 1969 Alan Kay was a graduate student at the University of Utah.
-He became aware of Simula and realized that the object-oriented style was well suited to his research in graphics ([Kay 1969](B9780080571157500285.xhtml#bb0600)).
-A few years later, at Xerox, he joined with Adele Goldberg and Daniel Ingalls to develop the Smalltalk language (see [Goldberg and Robinson 1983](B9780080571157500285.xhtml#bb0475)).
+He became aware of Simula and realized that the object-oriented style was well suited to his research in graphics ([Kay 1969](bibliography.md#bb0600)).
+A few years later, at Xerox, he joined with Adele Goldberg and Daniel Ingalls to develop the Smalltalk language (see [Goldberg and Robinson 1983](bibliography.md#bb0475)).
 While Simula can be viewed as an attempt to add object-oriented features to strongly typed Algol 60, Smalltalk can be seen as an attempt to use the dynamic, loosely typed features of Lisp, but with methods and objects replacing functions and s-expressions.
 In Simula, objects existed alongside traditional data types like numbers and strings; in Smalltalk, every datum is an object.
 This gave Smalltalk the feel of an integrated Lisp environment, where the user can inspect, copy, or edit any part of the environment.
@@ -929,8 +929,8 @@ Guy Steele's *LAMBDA: The Ultimate Declarative* (1976a and b) was perhaps the fi
 As the title suggests, it was all done using `lambda,` in a similar way to our `define-class` example.
 Steele summarized the approach with the equation "Actors = Closures (mod Syntax)," refering to Carl Hewitt's "Actors" object-oriented formalism.
 
-In 1979, the MIT Lisp Machine group developed the Flavors system based on this approach but offering considerable extensions ([Cannon 1980](B9780080571157500285.xhtml#bb0155), [Weinreb 1980](B9780080571157500285.xhtml#bb1360), [Moon et al.
-1983](B9780080571157500285.xhtml#bb0860)).
+In 1979, the MIT Lisp Machine group developed the Flavors system based on this approach but offering considerable extensions ([Cannon 1980](bibliography.md#bb0155), [Weinreb 1980](bibliography.md#bb1360), [Moon et al.
+1983](bibliography.md#bb0860)).
 "Flavor" was a popular jargon word for "type" or "kind" at MIT, so it was natural that it became the term for what we call classes.
 
 The Flavor system was the first to support multiple inheritance.
@@ -967,27 +967,27 @@ This system was known as New Flavors.
 It had a strong influence on the eventual CLOS design.
 
 The other strong influence on CLOS was the CommonLoops system developed at Xerox PARC.
-(See [Bobrow 1982](B9780080571157500285.xhtml#bb0095), [Bobrow et al.
-1986](B9780080571157500285.xhtml#bb0105), [Stefik and Bobrow 1986](B9780080571157500285.xhtml#bb1185).) CommonLoops continued the New Flavors trend away from message passing by introducing *multimethods*: methods that specialize on more than one argument.
+(See [Bobrow 1982](bibliography.md#bb0095), [Bobrow et al.
+1986](bibliography.md#bb0105), [Stefik and Bobrow 1986](bibliography.md#bb1185).) CommonLoops continued the New Flavors trend away from message passing by introducing *multimethods*: methods that specialize on more than one argument.
 
 As of summer 1991, CLOS itself is in a state of limbo.
 It was legitimized by its appearance in *Common Lisp the Language*, 2d edition, but it is not yet official, and an important part, the metaobject protocol, is not yet complete.
-A tutorial on CLOS is [Keene 1989](B9780080571157500285.xhtml#bb0620).
+A tutorial on CLOS is [Keene 1989](bibliography.md#bb0620).
 
 We have seen how easy it is to build an object-oriented system on top of Lisp, using `lambda` as the primary tool.
 An interesting alternative is to build Lisp on top of an object-oriented system.
-That is the approach taken in the Oaklisp system of [Lang and Perlmutter (1988)](B9780080571157500285.xhtml#bb0695).
+That is the approach taken in the Oaklisp system of [Lang and Perlmutter (1988)](bibliography.md#bb0695).
 Instead of defining methods using `lambda` as the primitive, Oaklisp has `add-method` as a primitive and defines `lambda` as a macro that adds a method to an anonymous, empty operation.
 
 Of course, object-oriented systems are thriving outside the Lisp world.
 With the success of UNIX-based workstations, C has become one of the most widely available programming languages.
 C is a fairly low-level language, so there have been several attempts to use it as a kind of portable assembly language.
-The most successful of these attempts is C++, a language developed by Bjarne Stroustrup of AT&T Bell Labs ([Stroustrup 1986](B9780080571157500285.xhtml#bb1210)).
+The most successful of these attempts is C++, a language developed by Bjarne Stroustrup of AT&T Bell Labs ([Stroustrup 1986](bibliography.md#bb1210)).
 C++ provides a number of extensions, including the ability to define classes.
 However, as an add-on to an existing language, it does not provide as many features as the other languages discussed here.
 Crucially, it does not provide garbage collection, nor does it support fully generic functions.
 
-Eiffel ([Meyer 1988](B9780080571157500285.xhtml#bb0830)) is an attempt to define an object-oriented system from the ground up rather than tacking it on to an existing language.
+Eiffel ([Meyer 1988](bibliography.md#bb0830)) is an attempt to define an object-oriented system from the ground up rather than tacking it on to an existing language.
 Eiffel supports multiple inheritance and garbage collection and a limited amount of dynamic dispatching.
 
 So-called modern languages like Ada and Modula support information-hiding through generic functions and classes, but they do not provide inheritance, and thus can not be classified as true object-oriented languages.

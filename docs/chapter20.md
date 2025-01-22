@@ -28,7 +28,7 @@ The rule says that a given string of words `?s` is a sentence if there is a stri
 Logically, this is fine, and it would work as a program to generate random sentences.
 However, it is a very inefficient program for parsing sentences.
 It will consider all possible noun phrases and verb phrases, without regard to the input words.
-Only when it gets to the concat goal (defined on [page 411](B9780080571157500121.xhtml#p411)) will it test to see if the two constituents can be concatenated together to make up the input string.
+Only when it gets to the `concat` goal (defined on [page 411](chapter12.md#p411)) will it test to see if the two constituents can be concatenated together to make up the input string.
 Thus, a better order of evaluation for parsing is:
 
 ```lisp
@@ -71,7 +71,8 @@ A sample query would be `(?- (S (The boy ate the apple) ())).` With suitable def
 
 Another way of reading the goal `(NP ?s0 ?sl)`, for example, is as "`IS` the list `?s0` minus the list `?sl` a noun phrase?" In this case, `?s0` minus `?sl` is the list `(The boy)`.
 The combination of two arguments, an input list and an output list, is often called a *difference list*, to emphasize this interpretation.
-More generally, the combination of an input parameter and output parameter is called an *accumulator.* Accumulators, particularly difference lists, are an important technique throughout logic programming and are also used in functional programming, as we saw on [page 63](B9780080571157500030.xhtml#p63).
+More generally, the combination of an input parameter and output parameter is called an *accumulator.*
+Accumulators, particularly difference lists, are an important technique throughout logic programming and are also used in functional programming, as we saw on [page 63](chapter3.md#p63).
 
 In our rule for `S`, the concatenation of difference lists was implicit.
 If we prefer, we could define a version of `concat` for difference lists and call it explicitly:
@@ -232,7 +233,7 @@ So, we will take the usual step when our bare programming language becomes messy
 Edinburgh Prolog recognizes assertions called *definite clause grammar* (DCG) rules.
 The term *definite clause* is just another name for a Prolog clause, so DCGs are also called "logic grammars." They could have been called "Horn clause grammars" or "Prolog grammars" as well.
 
-DCG rules are clauses whose main functor is an arrow, usually written -->.
+DCG rules are clauses whose main functor is an arrow, usually written `-->`.
 They compile into regular Prolog clauses with extra arguments.
 In normal DCG rules, only the string arguments are automatically added.
 But we will see later how this can be extended to add other arguments automatically as well.
@@ -505,9 +506,9 @@ The problem in the representation we have been using becomes more acute when we 
 
 This can be considered ambiguous between the following two meanings, in predicate calculus form:
 
-`&forall; x picture(x)`=> `&exist; y story(y) &and; paint(x,y)`
+&forall; x picture(x) => &exist; y story(y) &and; paint(x,y)
 
-`&exist; y story (y) &and; &forall; x picture(x)`=> `paint(x,y)`
+&exist; y story (y) &and; &forall; x picture(x) => paint(x,y)
 
 The first says that for each picture, there is a story that it paints.
 The second says that there is a certain special story that every picture paints.
@@ -669,10 +670,9 @@ paints a picture that stinks.
 
 Consider the simple sentence "Every man loves a woman." This sentence is ambiguous between the following two interpretations:
 
-```lisp
 &forall;m&exist;w man(m) &and; woman(w) &and; loves(m,w)
+
 &exist;w&forall;m man(m) &and; woman(w) &and; loves(m,w)
-```
 
 The first interpretation is that every man loves some woman-his wife, perhaps.
 The second interpretation is that there is a certain woman whom every man loves-Natassja Kinski, perhaps.
@@ -849,7 +849,7 @@ In the next chapter, we will see how to impose additional constraints on gaps.
 ## 20.7 Augmenting DCG Rules
 
 In the previous section, we saw how to build up a semantic representation of a sentence by conjoining the semantics of the components.
-One problem with this approach is that the semantic interpretation is often something of the form `(and (and t *a) b),*` when we would prefer `(and *a b)*`.
+One problem with this approach is that the semantic interpretation is often something of the form `(and (and t` *a) b),* when we would prefer `(and` *a b)*.
 There are two ways to correct this problem: either we add a step that takes the final semantic interpretation and simplifies it, or we complicate each individual rule, making it generate the simplified form.
 The second choice would be slightly more efficient, but would be very ugly and error prone.
 We should be doing all we can to make the rules simpler, not more complicated; that is the whole point of the DCG formalism.
@@ -874,7 +874,7 @@ If we were to alter this rule to produce a simplified semantic interpretation, i
 ```
 
 Many rules will have this form, so we adopt a simple convention: if the last argument of the constituent on the left-hand side of a rule is the keyword `:sem`, then we will build the semantics by replacing `:sem` with a conjunction formed by combining all the last arguments of the constituents on the right-hand side of the rule.
-`A==>` arrow will be used for rules that follow this convention, so the following rule is equivalent to the one above:
+A `==>` arrow will be used for rules that follow this convention, so the following rule is equivalent to the one above:
 
 ```lisp
 (rule (S :sem) ==>
@@ -1001,7 +1001,7 @@ If there are more than one, it inserts a call to the predicate `and*`.
 ```
 
 We could have implemented `and*` with Prolog clauses, but it is slightly more efficient to do it directly in Lisp.
-A call to `conjuncts` collects all the conjuncts, and we then add an and if necessary:
+A call to `conjuncts` collects all the conjuncts, and we then add an `and` if necessary:
 
 ```lisp
 (defun and*/2 (in out cont)
@@ -1029,7 +1029,7 @@ The code in `make-augmented-dcg` turns examples into expressions of the form:
 (:ex (S ?sem) "John likes Mary" "He sleeps")
 ```
 
-To make this work, :ex will have to be a macro:
+To make this work, `:ex` will have to be a macro:
 
 ```lisp
 (defmacro :ex ((category . args) &body examples)
@@ -1037,7 +1037,7 @@ To make this work, :ex will have to be a macro:
   `(add-examples ',category ',args ',examples))
 ```
 
-`:ex calls add-examples` to do all the work.
+`:ex` calls `add-examples` to do all the work.
 Each example is stored in a hash table indexed under the the category.
 Each example is transformed into a two-element list: the example phrase string itself and a call to the proper predicate with all arguments supplied.
 The function `add-examples` does this transformation and indexing, and `run-examples` retrieves the examples stored under a category, prints each phrase, and calls each goal.
@@ -1171,18 +1171,18 @@ His *metamorphosis grammar* formalism was more expressive but much less efficien
 The grammar in [section 20.4](#s0025) is essentially the same as the one presented in Fernando Pereira and David H.
 D.
 Warren's 1980 paper, which introduced the Definite Clause Grammar formalism as it is known today.
-The two developed a much more substantial grammar and used it in a very influential question-answering system called Chat-80 ([Warren and Pereira, 1982](B9780080571157500285.xhtml#bb1340)).
+The two developed a much more substantial grammar and used it in a very influential question-answering system called Chat-80 ([Warren and Pereira, 1982](bibliography.md#bb1340)).
 Pereira later teamed with Stuart Shieber on an excellent book covering logic grammars in more depth: *Prolog and Natural-Language Analysis* (1987).
 The book has many strong points, but unfortunately it does not present a grammar anywhere near as complete as the Chat-80 grammar.
 
 The idea of a compositional semantics based on mathematical logic owes much to the work of the late linguist Richard Montague.
-The introduction by [Dowty, Wall, and Peters (1981)](B9780080571157500285.xhtml#bb0335) and the collection by [Rich Thomason (1974)](B9780080571157500285.xhtml#bb1235) cover Montague's approach.
+The introduction by [Dowty, Wall, and Peters (1981)](bibliography.md#bb0335) and the collection by [Rich Thomason (1974)](bibliography.md#bb1235) cover Montague's approach.
 
 The grammar in [section 20.5](#s0030) is based loosely on Michael McCord's modular logic grammar, as presented in [Walker et al.
-1990](B9780080571157500285.xhtml#bb1295).
+1990](bibliography.md#bb1295).
 
 It should be noted that logic grammars are by no means the only approach to natural language processing.
-[Woods (1970)](B9780080571157500285.xhtml#bb1425) presents an approach based on the *augmented transition network*, or ATN.
+[Woods (1970)](bibliography.md#bb1425) presents an approach based on the *augmented transition network*, or ATN.
 A transition network is like a context-free grammar.
 The *augmentation* is a way of manipulating features and semantic values.
 This is just like the extra arguments in DCGs, except that the basic operations are setting and testing variables rather than unification.
@@ -1190,7 +1190,7 @@ So the choice between ATNs and DCGs is largely a matter of what programming appr
 My feeling is that unification is a more suitable primitive than assignment, so I chose to present DCGs, even though this required bringing in Prolog's backtracking and unification mechanisms.
 
 In either approach, the same linguistic problems must be addressed-agreement, long-distance dependencies, topicalization, quantifier-scope ambiguity, and so on.
-Comparing [Woods's (1970)](B9780080571157500285.xhtml#bb1425) ATN grammar to [Pereira and Warren's (1980)](B9780080571157500285.xhtml#bb0950) DCG grammar, the careful reader will see that the solutions have much in common.
+Comparing [Woods's (1970)](bibliography.md#bb1425) ATN grammar to [Pereira and Warren's (1980)](bibliography.md#bb0950) DCG grammar, the careful reader will see that the solutions have much in common.
 The analysis is more important than the notation, as it should be.
 
 ## 20.9 Exercises

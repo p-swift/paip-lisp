@@ -1,9 +1,9 @@
 # Chapter 12
 ## Compiling Logic Programs
 
-The end of [chapter 11](B978008057115750011X.xhtml) introduced a new, more efficient representation for logic variables.
+The end of [chapter 11](chapter11.md) introduced a new, more efficient representation for logic variables.
 It would be reasonable to build a new version of the Prolog interpreter incorporating this representation.
-However, [chapter 9](B9780080571157500091.xhtml) has taught us that compilers run faster than interpreters and are not that much harder to build.
+However, [chapter 9](chapter9.md) has taught us that compilers run faster than interpreters and are not that much harder to build.
 Thus, this chapter will present a Prolog compiler that translates from Prolog to Lisp.
 
 Each Prolog predicate will be translated into a Lisp function, and we will adopt the convention that a predicate called with a different number of arguments is a different predicate.
@@ -233,8 +233,8 @@ we transform it to the equivalent:
 ```
 
 Now the arguments in the head of the clause match the arguments in the function `likes/2`, so there is no need to generate any code for the head.
-This makes things simpler by eliminating `compile-head`, and it is a better decomposition for another reason: instead of adding optimizations to `compile-head`, we will add them to the code in `compile`-`body` that handles =.
-That way, we can optimize calls that the user makes to =, in addition to the calls introduced by the source-code transformation.
+This makes things simpler by eliminating `compile-head`, and it is a better decomposition for another reason: instead of adding optimizations to `compile-head`, we will add them to the code in `compile-body` that handles `=`.
+That way, we can optimize calls that the user makes to `=`, in addition to the calls introduced by the source-code transformation.
 
 To get an overview, the calling sequence of functions will turn out to be as follows:
 
@@ -268,7 +268,7 @@ Here then is our first version of `compile-clause`:
 The bulk of the work is in `compile-body`, which is a little more complicated.
 There are three cases.
 If there is no body, we just call the continuation.
-If the body starts with a call to =, we compile a call to `unify!`.
+If the body starts with a call to `=`, we compile a call to `unify!`.
 Otherwise, we compile a call to a function, passing in the appropriate continuation.
 
 However, it is worthwhile to think ahead at this point.
@@ -600,9 +600,10 @@ Either `compile-unify` can modify a global state variable, or it can return mult
 On the grounds that global variables are messy, we make the second choice: `compile-unify` will take a binding list as an extra argument and will return two values, the actual code and an updated binding list.
 We will expect that other related functions will have to be modified to deal with these multiple values.
 
-When `compile-unify` is first called in our example clause, it is asked to unify `?argl` and `?item`.
-We want it to return no code (or more precisely, the trivially true test, t).
-For the second value, it should return a new binding list, with `?item` bound to `?arg1.` That binding will be used to replace `?item` with `?arg1` in subsequent code.
+When `compile-unify` is first called in our example clause, it is asked to unify `?arg1` and `?item`.
+We want it to return no code (or more precisely, the trivially true test, `t`).
+For the second value, it should return a new binding list, with `?item` bound to `?arg1`.
+That binding will be used to replace `?item` with `?arg1` in subsequent code.
 
 How do we know to bind `?item` to `?arg1` rather than the other way around?
 Because `?arg1` is already bound to something-the value passed in to `member.` We don't know what this value is, but we can't ignore it.
@@ -614,7 +615,7 @@ Thus, the initial binding list will be:
 ((?arg1 .?arg1) (?arg2 . ?arg2))
 ```
 
-We saw in the previous chapter ([page 354](B978008057115750011X.xhtml#p354)) that binding a variable to itself can lead to problems; we will have to be careful.
+We saw in the previous chapter ([page 354](chapter11.md#p354)) that binding a variable to itself can lead to problems; we will have to be careful.
 
 Besides eliminating unifications of new variables against parameters, there are quite a few other improvements that can be made.
 For example, unifications involving only constants can be done at compile time.
@@ -804,7 +805,7 @@ This is because the goal, whatever it is, may bind its arguments.
 (defun self-cons (x) (cons x x))
 ```
 
-One of the functions that needs to be changed to accept a binding list is the compiler macro for =:
+One of the functions that needs to be changed to accept a binding list is the compiler macro for `=`:
 
 ```lisp
 (def-prolog-compiler-macro = (goal body cont bindings)
@@ -890,7 +891,7 @@ This change should speed execution time and limit the amount of garbage generate
 Of course, it makes the generated code longer, so that could slow things down if the program ends up spending too much time bringing the code to the processor.
 
 **Exercise  12.1 [h]** Write definitions for `consp-or-variable-p, unify-first!,` and `unify-rest!`, and change the compiler to generate code like that outlined previously.
-You might want to look at the function `compile-rule` in [section 9.6](B9780080571157500091.xhtml#s0035), starting on [page 300](B9780080571157500091.xhtml#p300).
+You might want to look at the function `compile-rule` in [section 9.6](chapter9.md#s0035), starting on [page 300](chapter9.md#p300).
 This function compiled a call to `pat-match` into individual tests; now we want to do the same thing to `unify!`.
 Run some benchmarks to compare the altered compiler to the original version.
 
@@ -939,7 +940,9 @@ This is a one-line addition to `add-clause:`
     pred))
 ```
 
-Now when a query is made, the ?- macro expands into a call to `top-level-prove.` The list of goals in the query, along with the `show-prolog-vars` goal, is added as the sole clause for the relation `top-level-query.` Next, that query, along with any others that are on the uncompiled list, are compiled.
+Now when a query is made, the `?-` macro expands into a call to `top-level-prove`.
+The list of goals in the query, along with the `show-prolog-vars` goal, is added as the sole clause for the relation `top-level-query`.
+Next, that query, along with any others that are on the uncompiled list, are compiled.
 Finally, the newly compiled top-level query function is called.
 
 ```lisp
@@ -1019,7 +1022,7 @@ To continue, we call that function, but to fail, we throw to the catch point set
         exp)))
 ```
 
-With these definitions in place, we can invoke the compiler automatically just by making a query with the ? - macro.
+With these definitions in place, we can invoke the compiler automatically just by making a query with the `?-` macro.
 
 **Exercise 12.6 [m]** Suppose you define a predicate `p`, which calls `q`, and then define `q`.
 In some implementations of Lisp, when you make a query like `(?- (p ?x))`, you may get a warning message like `"function q/1 undefined"` before getting the correct answer.
@@ -1032,11 +1035,12 @@ Find out if `with-compilation-unit` is already defined in your implementation, o
 
 Our compiled Prolog code runs the zebra puzzle in 17.4 seconds, a 16-fold speed-up over the interpreted version, for a rate of 740 LIPS.
 
-Another popular benchmark is Lisp's reverse function, which we can code as the rev relation:
+Another popular benchmark is Lisp's `reverse` function, which we can code as the `rev` relation:
 
 ```lisp
 (<- (rev () ()))
 (<- (rev (?x . ?a) ?b) (rev ?a ?c) (concat ?c (?x) ?b))
+
 (<- (concat () ?1 ?1)
 (<- (concat (?x . ?a) ?b (?x . ?c)) (concat ?a ?b ?c))
 ```
@@ -1095,8 +1099,8 @@ This benchmark is too small to be conclusive, but on these examples the Prolog c
 This suggests that the Prolog interpreter cannot be used as a practical programming tool, but the Prolog compiler can.
 
 Before moving on, it is interesting to note that Prolog provides for optional arguments automatically.
-Although there is no special syntax for optional arguments, an often-used convention is to have two versions of a relation, one with *n* arguments and one with *n -* 1.
-A single clause for the *n -* 1 case provides the missing, and therefore "optional," argument.
+Although there is no special syntax for optional arguments, an often-used convention is to have two versions of a relation, one with *n* arguments and one with *n* - 1.
+A single clause for the *n* - 1 case provides the missing, and therefore "optional," argument.
 In the following example, `irev/2` can be considered as a version of `irev/3` where the missing optional argument is ().
 
 ```lisp
@@ -1138,13 +1142,13 @@ It is an easy extension to define `read/2` and `write/2` as relations that indic
 To make this useful, one would need to define `open/2` as a relation that takes a pathname as one argument and gives a stream back as the other.
 Other optional arguments could also be supported, if desired.
 
-The primitive nl outputs a newline:
+The primitive `nl` outputs a newline:
 
 ```lisp
 (defun nl/0 (cont) (terpri) (funcall cont))
 ```
 
-We provided special support for the unification predicate, =.
+We provided special support for the unification predicate, `=`.
 However, we could have simplified the compiler greatly by having a simple definition for `=/2`:
 
 ```lisp
@@ -1218,33 +1222,33 @@ Here are the logical connectives and and or:
 
 Note that these are only binary connectives, not the *n*-ary special forms used in Lisp.
 Also, this definition negates most of the advantage of compilation.
-The goals inside an and or or will be interpreted by `call`, rather than being compiled.
+The goals inside an `and` or `or` will be interpreted by `call`, rather than being compiled.
 
 We can also define `not,` or at least the normal Prolog `not,` which is quite distinct from the logical `not.`
 In fact, in some dialects, `not` is written `\+`, which is supposed to be &#x22AC;, that is, "can not be derived."
 The interpretation is that if goal G can not be proved, then (`not G` ) is true.
 Logically, there is a difference between (`not G` ) being true and being unknown, but ignoring that difference makes Prolog a more practical programming language.
-See [Lloyd 1987](B9780080571157500285.xhtml#bb0745) for more on the formal semantics of negation in Prolog.
+See [Lloyd 1987](bibliography.md#bb0745) for more on the formal semantics of negation in Prolog.
 
 Here's an implementation of `not/1`.
 Since it has to manipulate the trail, and we may have other predicates that will want to do the same, we'll package up what was done in `maybe-add-undo-bindings` into the macro `with-undo-bindings:`
 
 ```lisp
 (defmacro with-undo-bindings (&body body)
- "Undo bindings after each expression in body except the last."
- (if (length=1 body)
-  (first body)
-  '(let ((old-trail (fill-pointer *trail*)))
-   ,(first body)
-    ,@(loop for exp in (rest body)
-        collect '(undo-bindings! old-trail)
-        collect exp))))
+  "Undo bindings after each expression in body except the last."
+  (if (length=1 body)
+      (first body)
+      '(let ((old-trail (fill-pointer *trail*)))
+         ,(first body)
+          ,@(loop for exp in (rest body)
+                  collect '(undo-bindings! old-trail)
+                  collect exp))))
 (defun not/1 (relation cont)
- "Negation by failure: If you can't prove G. then (not G) true."
- ;; Either way, undo the bindings.
- (with-undo-bindings
-  (call/1 relation #'(lambda () (return-from not/1 nil)))
-  (funcall cont)))
+  "Negation by failure: If you can't prove G. then (not G) true."
+  ;; Either way, undo the bindings.
+  (with-undo-bindings
+    (call/1 relation #'(lambda () (return-from not/1 nil)))
+    (funcall cont)))
 ```
 
 Here's an example where `not` works fine:
@@ -1263,7 +1267,8 @@ Now see what happens when we simply reverse the order of the two goals:
 No.
 ```
 
-The first example succeeds unless `?x` is bound to `b.` In the second example, `?x` is unbound at the start, so `(= ?x b )` succeeds, the not fails, and the `member` goal is never reached.
+The first example succeeds unless `?x` is bound to `b`.
+In the second example, `?x` is unbound at the start, so `(= ?x b )` succeeds, the `not` fails, and the `member` goal is never reached.
 So our implementation of `not` has a consistent procedural interpretation, but it is not equivalent to the declarative interpretation usually given to logical negation.
 Normally, one would expect that `a` and `c` would be valid solutions to the query, regardless of the order of the goals.
 
@@ -1388,7 +1393,7 @@ Needless to say, `lisp` is not a part of standard Prolog.
  (funcall cont)))
 ```
 
-**Exercise  12.7 [m]** Define the primitive `solve/1`, which works like the function `solve` used in student ([page 225](B9780080571157500078.xhtml#p225)).
+**Exercise  12.7 [m]** Define the primitive `solve/1`, which works like the function `solve` used in student ([page 225](chapter7.md#p225)).
 Decide if it should take a single equation as argument or a list of equations.
 
 **Exercise  12.8 [h]** Assume we had a goal of the form `(solve (=  12 (* (+ ?x 1) 4)))`.
@@ -1397,7 +1402,7 @@ Write a Prolog compiler macro for `solve`.
 Notice that even when you have defined a compiler macro, you still need the underlying primitive, because the predicate might be invoked through a `call/1`.
 The same thing happens in Lisp: even when you supply a compiler macro, you still need the actual function, in case of a `funcall` or `apply`.
 
-**Exercise  12.9 [h]** Which of the predicates `call`, and, `or`, `not`, or `repeat` could benefit from compiler macros?
+**Exercise  12.9 [h]** Which of the predicates `call`, `and`, `or`, `not`, or `repeat` could benefit from compiler macros?
 Write compiler macros for those predicates that could use one.
 
 **Exercise  12.10 [m]** You might have noticed that `call/1` is inefficient in two important ways.
@@ -1410,7 +1415,7 @@ Change the whole compiler so that the continuation argument comes first, not las
 Define these primitives.
 Hint: the first corresponds to a Common Lisp function, and the second is a function already defined in this chapter.
 
-**Exercise  12.12 [s]** Would it be possible to write `= =/2` as a list of clauses rather than as a primitive?
+**Exercise 12.12 [s]** Would it be possible to write `==/2` as a list of clauses rather than as a primitive?
 
 **Exercise  12.13 [m]** Write a version of `deref-copy` that traverses the argument expression only once.
 
@@ -1432,8 +1437,8 @@ The straightforward definition is:
 (<- (max ?x ?y ?y) (< ?x ?y))
 ```
 
-Declaratively, this is correct, but procedurally it is a waste of time to compute the < relation if the >= has succeeded: in that case the < can never succeed.
-The cut symbol, written !, can be used to stop the wasteful computation.
+Declaratively, this is correct, but procedurally it is a waste of time to compute the `<` relation if the `>=` has succeeded: in that case the `<` can never succeed.
+The cut symbol, written `!`, can be used to stop the wasteful computation.
 We could write:
 
 ```lisp
@@ -1488,8 +1493,9 @@ Thus, we want code that looks something like this:
         (return-from p/2 nil)))))))
 ```
 
-We can get this code by making a single change to `compile-body:` when the first goal in a body (or what remains of the body) is the cut symbol, then we should generate a `progn` that contains the code for the rest of the body, followed by a `return-from` the predicate being compiled.
-Unfortunately, the name of the predicate is not available to `compile-body.` We could change `compile-clause` and `compile-body` to take the predicate name as an extra argument, or we could bind the predicate as a special variable in `compile-predicate`.
+We can get this code by making a single change to `compile-body`: when the first goal in a body (or what remains of the body) is the cut symbol, then we should generate a `progn` that contains the code for the rest of the body, followed by a `return-from` the predicate being compiled.
+Unfortunately, the name of the predicate is not available to `compile-body`.
+We could change `compile-clause` and `compile-body` to take the predicate name as an extra argument, or we could bind the predicate as a special variable in `compile-predicate`.
 I choose the latter:
 
 ```lisp
@@ -1576,7 +1582,7 @@ Several Prolog books present programs like this:
 ```
 
 The intent is that commands are read one at a time, and then processed.
-For each command except `exit, process` takes the appropriate action and then fails.
+For each command except `exit`, `process` takes the appropriate action and then fails.
 This causes a backtrack to the repeat goal, and a new command is read and processed.
 When the command is `exit`, the procedure returns.
 
@@ -1587,7 +1593,7 @@ But here there is no way to tell that four of the six goals in the body comprise
 Second, it violates the principle of abstraction.
 A predicate should be understandable as a separate unit.
 But here the predicate process can only be understood by considering the context in which it is called: a context that requires it to fail after processing each command.
-As [Richard O'Keefe 1990](B9780080571157500285.xhtml#bb0925) points out, the correct way to write this clause is as follows:
+As [Richard O'Keefe 1990](bibliography.md#bb0925) points out, the correct way to write this clause is as follows:
 
 ```lisp
 (<- (main)
@@ -1664,13 +1670,13 @@ The Prolog term `p(a,b)` corresponds to the Lisp vector `#(p/2 a b)`, not the li
 A minority of Prolog implementations use *structure sharing.* In this approach, every non-atomic term is represented by a skeleton that contains place holders for variables and a header that points to the skeleton and also contains the variables that will fill the place holders.
 With structure sharing, making a copy is easy: just copy the header, regardless of the size of the skeleton.
 However, manipulating terms is complicated by the need to keep track of both skeleton and header.
-See [Boyer and Moore 1972](B9780080571157500285.xhtml#bb0110) for more on structure sharing.
+See [Boyer and Moore 1972](bibliography.md#bb0110) for more on structure sharing.
 
 Another major difference is that real Prolog uses the equivalent of failure continuations, not success continuations.
 No actual continuation, in the sense of a closure, is built.
 Instead, when a choice is made, the address of the code for the next choice is pushed on a stack.
 Upon failure, the next choice is popped off the stack.
-This is reminiscent of the backtracking approach using Scheme's `call/cc` facility outlined on [page 772](B9780080571157500224.xhtml#p772).
+This is reminiscent of the backtracking approach using Scheme's `call/cc` facility outlined on [page 772](chapter22.md#p772).
 
 **Exercise  12.15 [m]** Assuming an approach using a stack of failure continuations instead of success continuations, show what the code for `p` and `member` would look like.
 Note that you need not pass failure continuations around; you can just push them onto a stack that `top-level-prove` will invoke.
@@ -1679,13 +1685,13 @@ Did we make the right choice in implementing our compiler with success continuat
 
 ## 12.11 History and References
 
-As described in [chapter 11](B978008057115750011X.xhtml), the idea of logic programming was fairly well understood by the mid-1970s.
+As described in [chapter 11](chapter11.md), the idea of logic programming was fairly well understood by the mid-1970s.
 But because the implementations of that time were slow, logic programming did not catch on.
 It was the Prolog compiler for the DEC-10 that made logic programming a serious alternative to Lisp and other general-purpose languages.
 The compiler was developed in 1977 by David H.
 D.
 Warren with Fernando Pereira and Luis Pereira.
-See the paper by [Warren (1979)](B9780080571157500285.xhtml#bb1325) and by all three (1977).
+See the paper by [Warren (1979)](bibliography.md#bb1325) and by all three (1977).
 
 Unfortunately, David H.
 D.
@@ -1693,10 +1699,10 @@ Warren's pioneering work on compiling Prolog has never been published in a widel
 His main contribution was the description of the Warren Abstract Machine (WAM), an instruction set for compiled Prolog.
 Most existing compilers use this instruction set, or a slight modification of it.
 This can be done either through byte-code interpretation or through macroexpansion to native machine instructions.
-[A&iuml;t-Kaci 1991](B9780080571157500285.xhtml#bb0020) provides a good tutorial on the WAM, much less terse than the original ([Warren 1983](B9780080571157500285.xhtml#bb1330)).
+[A&iuml;t-Kaci 1991](bibliography.md#bb0020) provides a good tutorial on the WAM, much less terse than the original ([Warren 1983](bibliography.md#bb1330)).
 The compiler presented in this chapter does not use the WAM.
-Instead, it is modeled after Mark [Stickel's (1988)](B9780080571157500285.xhtml#bb1200) theorem prover.
-A similar compiler is briefly sketched by Jacques [Cohen 1985](B9780080571157500285.xhtml#bb0225).
+Instead, it is modeled after Mark [Stickel's (1988)](bibliography.md#bb1200) theorem prover.
+A similar compiler is briefly sketched by Jacques [Cohen 1985](bibliography.md#bb0225).
 
 ## 12.12 Exercises
 
@@ -1739,12 +1745,12 @@ In each case, decide if the predicate should be implemented as a primitive or a 
 
 There are some naming conflicts that need to be resolved.
 Terms like `atom` have one meaning in Prolog and another in Lisp.
-Also, in Prolog the normal notation is \= and \==, not /= and /==.
+Also, in Prolog the normal notation is `\=` and `\==`, not `/=` and `/==`.
 For Prolog-In-Lisp, you need to decide which notations to use: Prolog's or Lisp's.
 
-**Exercise  12.18 [s]** In Lisp, we are used to writing n-ary calls like `(<  1 n 10 ) or (= x y z )`.
+**Exercise  12.18 [s]** In Lisp, we are used to writing n-ary calls like `(< 1 n 10 )` or `(= x y z)`.
 Write compiler macros that expand n-ary calls into a series of binary calls.
-For example, `(<  1 n 10)` should expand into `(and (<  1 n) (< n 10))`.
+For example, `(< 1 n 10)` should expand into `(and (< 1 n) (< n 10))`.
 
 **Exercise  12.19 [m]** One feature of Lisp that is absent in Prolog is the `quote` mechanism.
 Is there a use for `quote?` If so, implement it; if not, explain why it is not needed.
@@ -1754,7 +1760,7 @@ Add procedures `p-trace` and `p-untrace` to trace and untrace Prolog predicates.
 Add code to the compiler to generate calls to a printing procedure for goals that are traced.
 In Lisp, we have to trace procedures when they are called and when they return.
 In Prolog, there are four cases to consider: the call, successful completion, backtrack into subsequent clauses, and failure with no more clauses.
-We will call these four `cases call`, `exit`, `redo,` and `fail`, respectively.
+We will call these four cases `call`, `exit`, `redo`, and `fail`, respectively.
 If we traced `member,` we would expect tracing output to look something like this:
 
 ```lisp
@@ -1791,7 +1797,7 @@ In all cases, Prolog functions are translated into Lisp, but they are only compi
 **Exercise  12.22 [d]** Some Prolog systems provide the predicate `freeze` to "freeze" a goal until its variables are instantiated.
 For example, the goal `(freeze x (> x 0))` is interpreted as follows: if `x` is instantiated, then just evaluate the goal `(> x 0)`, and succeed or fail depending on the result.
 However, if `x` is unbound, then succeed and continue the computation, but remember the goal `(> x 0)` and evaluate it as soon as `x` becomes instantiated.
-Implement freeze.
+Implement `freeze`.
 
 **Exercise  12.23 [m]** Write a recursive version of `anonymous-variables-in` that does not use a local function.
 
@@ -1909,7 +1915,7 @@ No.
     (funcall cont)))
 ```
 
-**Answer 12.19** Lisp uses quote in two ways: to distinguish a symbol from the value of the variable represented by that symbol, and to distinguish a literal list from the value that would be returned by evaluating a function call.
+**Answer 12.19** Lisp uses `quote` in two ways: to distinguish a symbol from the value of the variable represented by that symbol, and to distinguish a literal list from the value that would be returned by evaluating a function call.
 The first distinction Prolog makes by a lexical convention: variables begin with a question mark in our Prolog, and they are capitalized in real Prolog.
 The second distinction is not necessary because Prolog is relational rather than functional.
 An expression is a goal if it is a member of the body of a clause, and is a literal if it is an argument to a goal.

@@ -13,7 +13,7 @@ A *package* is a symbol table that maps from strings to symbols named by those s
 When read is confronted with a sequence of characters like `list`, it uses the symbol table to determine that this refers to the symbol `list`.
 The important point is that every use of the symbol name `list` refers to the same symbol.
 That makes it easy to refer to predefined symbols, but it also makes it easy to introduce unintended name conflicts.
-For example, if I wanted to hook up the `emycin` expert system from [chapter 16](B9780080571157500169.xhtml) with the parser from [chapter 19](B9780080571157500194.xhtml), there would be a conflict because both programs use the symbol `defrule` to mean different things.
+For example, if I wanted to hook up the `emycin` expert system from [chapter 16](chapter16.md) with the parser from [chapter 19](chapter19.md), there would be a conflict because both programs use the symbol `defrule` to mean different things.
 
 Common Lisp uses the package system to help resolve such conflicts.
 Instead of a single symbol table, Common Lisp allows any number of packages.
@@ -81,7 +81,7 @@ Also note that ANSI renames the `lisp package` as `common-lisp`.
  (:export emycin defrule defcontext defparm yes/no yes no is))
 ```
 
-For more on packages and building systems, see [section 25.16](B978008057115750025X.xhtml#s0110) or *Common Lisp the Language.*
+For more on packages and building systems, see [section 25.16](chapter25.md#s0110) or *Common Lisp the Language.*
 
 ### The Seven Name Spaces
 
@@ -156,7 +156,7 @@ An error handler is much like a `catch`, and signaling an error is like a `throw
 In fact, in many systems `catch` and `throw` are implemented with the error-condition system.
 
 The simplest way of handling an error is with the macro `ignore-errors`.
-If noerror occurs, `ignore-errors` is just like `progn`.
+If no error occurs, `ignore-errors` is just like `progn`.
 But if an error does occur, `ignore-errors` will return `nil` as its first value and `t` as its second, to indicate that an error has occurred but without doing anything else:
 
 ```lisp
@@ -214,11 +214,16 @@ Unfortunately, it is inefficient: both `find-all-if` and `mapcar` cons up interm
 The following two versions using `loop` and `dolist` are efficient but not as pretty:
 
 ```lisp
-;; Using Loop           ;; Using dolist
-(loop for num in nums   (let ((sum 0))
-  when (plusp num)        (dolist (num nums sum)
-  sum (sqrt num))            (when (plusp num)
-                                                            (incf sum num))))
+;; Using Loop
+(loop for num in nums
+      when (plusp num)
+      sum (sqrt num))
+
+;; Using dolist
+(let ((sum 0))
+  (dolist (num nums sum)
+     (when (plusp num)
+       (incf sum num))))
 ```
 
 A compromise between the two approaches is provided by the *series* facility, defined in appendix A of *Common Lisp the Language*, 2d edition.
@@ -231,7 +236,7 @@ The example using series would look like:
 This looks very much like the functional version: only the names have been changed.
 However, it compiles into efficient iterative code very much like the `dolist` version.
 
-Like pipes (see [section 9.3](B9780080571157500091.xhtml#s0015)), elements of a series are only evaluated when they are needed.
+Like pipes (see [section 9.3](chapter9.md#s0015)), elements of a series are only evaluated when they are needed.
 So we can write `(scan-range :from 0)` to indicate the infinite series of integers starting from 0, but if we only use, say, the first five elements of this series, then only the first five elements will be generated.
 
 The series facility offers a convenient and efficient alternative to iterative loops and sequence functions.
@@ -562,7 +567,7 @@ Each keyword is quite simple:
 The `collect` keyword poses another challenge.
 How do you collect a list of expressions presented one at a time?
 The answer is to view the expressions as a queue, one where we add items to the rear but never remove them from the front of the queue.
-Then we can use the queue functions defined in [section 10.5](B9780080571157500108.xhtml#s0025).
+Then we can use the queue functions defined in [section 10.5](chapter10.md#s0025).
 
 Unlike the other clauses, value accumulation clauses can communicate with each other.
 There can be, say, two `collect` and an append clause in the same loop, and they all build onto the same list.
@@ -670,9 +675,8 @@ However, sometimes you want to make, say, a `collect` conditional on some test.
 In that case, loop conditionals are acceptable.
 The clauses covered here are:
 
-(`LOOP WHEN test ... CELSE ...]) ; IF` is asynonym for `WHEN`
-
 ```lisp
+(LOOP WHEN test ... [ELSE ...])   ; IF is a synonym for WHEN
 (LOOP UNLESS test ... [ELSE ...])
 ```
 
@@ -683,11 +687,11 @@ Here is an example of `when`:
      when (oddp x)
          collect x
      else collect (- x))
-(1 -2 3 -4 5- 6 7 -8 9 -10)
+(1 -2 3 -4 5 -6 7 -8 9 -10)
 ```
 
-Of course, we could have said `collect (if (oddp x ) x ( - x ) )` and done without the conditional.
-There is one extra feature in loop's conditionals: the value of the test is stored in the variable it for subsequent use in the THEN or ELSE parts.
+Of course, we could have said `collect (if (oddp x ) x (- x ))` and done without the conditional.
+There is one extra feature in loop's conditionals: the value of the test is stored in the variable `it` for subsequent use in the THEN or ELSE parts.
 (This is just the kind of feature that makes some people love `loop` and others throw up their hands in despair.) Here is an example:
 
 ```lisp
@@ -700,7 +704,7 @@ There is one extra feature in loop's conditionals: the value of the test is stor
 The conditional clauses are a little tricky to implement, since they involve parsing other clauses.
 The idea is that `call-loop-fn` parses the THEN and ELSE parts, adding whatever is necessary to the body and to other parts of the loop structure.
 Then `add-body` is used to add labels and go statements that branch to the labels as needed.
-This is the same technique that is used to compile conditionals in [chapter 23](B9780080571157500236.xhtml); see the function `comp-if` on [page 787](B9780080571157500236.xhtml#p787).
+This is the same technique that is used to compile conditionals in [chapter 23](chapter23.md); see the function `comp-if` on [page 787](chapter23.md#p787).
 Here is the code:
 
 ```lisp
@@ -735,7 +739,7 @@ Here is the code:
 
 ### Unconditional Execution (26.11)
 
-The unconditional execution keywords are do and return:
+The unconditional execution keywords are `do` and `return`:
 
 ```lisp
 (defloop do (l exp exps)
@@ -803,7 +807,7 @@ But it doesn't work as well here:
 
 The problem is that `i` will get incremented twice, not once, and two different values will get printed, not one.
 We need to bind `(print (incf i))` to a local variable before doing the multiplication.
-On the other hand, it would be superfluous to bind z to a local variable in the previous example.
+On the other hand, it would be superfluous to bind `z` to a local variable in the previous example.
 This is where `once-only` comes in.
 It allows us to write macro definitions like this:
 
@@ -838,7 +842,7 @@ Here's roughly what we want:
 
 where `g001` is a new symbol, to avoid conflicts with the `x` or with symbols in the body.
 Normally, we generate macro bodies using backquotes, but if the macro body itself has a backquote, then what?
-It is possible to nest backquotes (and [appendix C](B9780080571157500273.xhtml) of *Common Lisp the Language*, 2d edition has a nice discussion of doubly and triply nested backquotes), but it certainly is not trivial to understand.
+It is possible to nest backquotes (and appendix C of *Common Lisp the Language*, 2d edition has a nice discussion of doubly and triply nested backquotes), but it certainly is not trivial to understand.
 I recommend replacing the inner backquote with its equivalent using `list` and `quote`:
 
 ```lisp
@@ -894,11 +898,11 @@ Here we see the expansion of the call to `once-only` and a repeat of the expansi
 ```
 
 This output was produced with `*print-gensym*` set to `nil`.
-When this variable is non-nil, uninterned symbols are printed with a prefix `#`:,as in `#:G3811`.
+When this variable is non-nil, uninterned symbols are printed with a prefix `#:`, as in `#:G3811`.
 This insures that the symbol will not be interned by a subsequent read.
 
 It is worth noting that Common Lisp automatically handles problems related to multiple evaluation of subforms in setf methods.
-See [page 884](B978008057115750025X.xhtml#p884) for an example.
+See [page 884](chapter25.md#p884) for an example.
 
 ### Avoid Overusing Macros
 
@@ -911,9 +915,7 @@ Before `if` was a standard part of Lisp, I defined my own version of `if`.
 Unlike the simple `if`, my version took any number of test/result pairs, followed by an optional else result.
 In general, the expansion was:
 
-```lisp
-(if *a b c d...x)* => (cond *(a b)* (*c d*) ... (T *x*))
-```
+`(if` *a b c d ... x*) => (`cond` *(a b) (c d)* ... (`T` *x*))
 
 My `if` also had one more feature: the symbol `'that'` could be used to refer to the value of the most recent test.
 For example, I could write:
@@ -930,8 +932,9 @@ which would expand into:
   (COND
     ((SETQ THAT (ASSOC ITEM A-LIST)) (PROCESS (CDR THAT)))))
 ```
+### remove extra line
 
-This was a convenient feature (compare it to the => feature of Scheme's cond, as discussed on [page 778](B9780080571157500224.xhtml#p778)), but it backfired often enough that I eventually gave up on my version of `if`.
+This was a convenient feature (compare it to the `=>` feature of Scheme's `cond`, as discussed on [page 778](chapter22.md#p778)), but it backfired often enough that I eventually gave up on my version of `if`.
 Here's why.
 I would write code like this:
 
@@ -956,7 +959,7 @@ But in this case, violating referential transparency can lead to confusion.
 
 ### MAP-INTO
 
-The function `map-into` is used on [page 632](B9780080571157500182.xhtml#p632).
+The function `map-into` is used on [page 632](chapter18.md#p632).
 This function, added for the ANSI version of Common Lisp, is like `map`, except that instead of building a new sequence, the first argument is changed to hold the results.
 This section describes how to write a fairly efficient version of `map-into`, using techniques that are applicable to any sequence function.
 We'll start with a simple version:
@@ -985,9 +988,9 @@ Here's a version that generates less garbage:
 ```
 
 There are three problems with this definition.
-First, it wastes space: mapcar creates a new argument list each time, only to have the list be discarded.
-Second, it wastes time: doing a `setf` of the ith element of a list makes the algorithm *O*(*n<sup>2</sup>*) instead of *O*(*n*), where *n* is the length of the list.
-Third, it is subtly wrong: if `result-sequence` is a vector with a fill pointer, then `map-into` is supposed to ignore `result-sequence's` current length and extend the fill pointer as needed.
+First, it wastes space: `mapcar` creates a new argument list each time, only to have the list be discarded.
+Second, it wastes time: doing a `setf` of the *i*th element of a list makes the algorithm *O*(*n<sup>2</sup>*) instead of *O*(*n*), where *n* is the length of the list.
+Third, it is subtly wrong: if `result-sequence` is a vector with a fill pointer, then `map-into` is supposed to ignore `result-sequence`'s current length and extend the fill pointer as needed.
 The following version fixes those problems:
 
 ```lisp
@@ -1038,12 +1041,12 @@ There are several things worth noticing here.
 First, I split the main loop into two versions, one where the result is a list, and the other where it is a vector.
 Rather than duplicate code, the local functions `do-one-call` and `do-result` are defined.
 The former is declared inline because it it called often, while the latter is not.
-The arguments are computed by looking at each sequence in turn, taking the ith element if it is a vector, and popping the sequence if it is a list.
+The arguments are computed by looking at each sequence in turn, taking the *i*th element if it is a vector, and popping the sequence if it is a list.
 The arguments are stored into the list `arglist`, which has been preallocated to the correct size.
 All in all, we compute the answer fairly efficiently, without generating unnecessary garbage.
 
 The application could be done more efficiently, however.
-Think what apply must do: scan down the argument list, and put each argument into the location expected by the function-calling conventions, and then branch to the function.
+Think what `apply` must do: scan down the argument list, and put each argument into the location expected by the function-calling conventions, and then branch to the function.
 Some implementations provide a better way of doing this.
 For example, the TI Lisp Machine provides two low-level primitive functions, `%push` and `%call`, that compile into single instructions to put the arguments into the right locations and branch to the function.
 With these primitives, the body of `do-one-call` would be:
@@ -1092,7 +1095,7 @@ If `map-into` is declared `inline` and the compiler is reasonably good, then it 
 
 Another change in the ANSI proposal is to add a `:key` keyword to `reduce`.
 This is a useful addition-in fact, for years I had been using a `reduce-by` function that provided just this functionality.
-In this section we see how to add the : key keyword.
+In this section we see how to add the `:key` keyword.
 
 At the top level, I define reduce as an interface to the keywordless function `reduce*`.
 They are both proclaimed inline, so there will be no overhead for the keywords in normal uses of reduce.

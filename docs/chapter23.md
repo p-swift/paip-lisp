@@ -8,8 +8,8 @@ The simplest compiler need not be much more complex than an interpreter.
 One thing that makes a compiler more complex is that we have to describe the output of the compiler: the instruction set of the machine we are compiling for.
 For the moment let's assume a stack-based machine.
 The calling sequence on this machine for a function call with *n* arguments is to push the *n* arguments onto the stack and then push the function to be called.
-A `"CALL *n*"` instruction saves the return point on the stack and goes to the first instruction of the called function.
-By convention, the first instruction of a function will always be `"ARGS *n*"`, which pops *n* arguments off the stack, putting them in the new function's environment, where they can be accessed by `LVAR` and `LSET` instructions.
+A "`CALL` *n*" instruction saves the return point on the stack and goes to the first instruction of the called function.
+By convention, the first instruction of a function will always be "`ARGS` *n*", which pops *n* arguments off the stack, putting them in the new function's environment, where they can be accessed by `LVAR` and `LSET` instructions.
 The function should return with a `RETURN` instruction, which resets the program counter and the environment to the point of the original `CALL` instruction.
 
 In addition, our machine has three `JUMP` instructions; one that branches unconditionally, and two that branch depending on if the top of the stack is nil or non-nil.
@@ -127,7 +127,7 @@ The difference is that each case generates code rather than evaluating a subexpr
 
 ```
 
-The compiler `comp` has the same nine cases-in fact the exact same structure-as the interpreter `interp` from [chapter 22](B9780080571157500224.xhtml).
+The compiler `comp` has the same nine cases-in fact the exact same structure-as the interpreter `interp` from [chapter 22](chapter22.md).
 Each case is slightly more complex, so the three main cases have been made into separate functions: `comp-begin`, `comp-if`, and `comp-lambda.` A `begin` expression is compiled by compiling each argument in turn but making sure to pop each value but the last off the stack after it is computed.
 The last element in the `begin` stays on the stack as the value of the whole expression.
 Note that the function `gen` generates a single instruction (actually a list of one instruction), and `seq` makes a sequence of instructions out of two or more subsequences.
@@ -379,8 +379,8 @@ Here's another example:
 | `GVAR`   | `X` |
 | `RETURN` |     |
 
-In this expression, if we can be assured that + and * refer to the normal arithmetic functions, then we can compile this as if it were `(begin (f x) x)`.
-Furthermore, it is reasonable to assume that + and * will be instructions in our machine that can be invoked inline, rather than having to call out to a function.
+In this expression, if we can be assured that `+` and `*` refer to the normal arithmetic functions, then we can compile this as if it were `(begin (f x) x)`.
+Furthermore, it is reasonable to assume that `+` and `*` will be instructions in our machine that can be invoked inline, rather than having to call out to a function.
 Many compilers spend a significant portion of their time optimizing arithmetic operations, by taking into account associativity, commutativity, distributivity, and other properties.
 
 Besides arithmetic, compilers often have expertise in conditional expressions.
@@ -430,14 +430,14 @@ Consider the following:
 |      | `CALL`   | `1` |
 |      | `RETURN` |     |
 
-Here we call `g` and when `g` returns we call `f` , and when `f` returns we return from this function.
+Here we call `g` and when `g` returns we call `f`, and when `f` returns we return from this function.
 But this last return is wasteful; we push a return address on the stack, and then pop it off, and return to the next return address.
 An alternative function-calling protocol involves pushing the return address before calling `g,` but then not pushing a return address before calling `f;` when `f` returns, it returns directly to the calling function, whatever that is.
 
 Such an optimization looks like a small gain; we basically eliminate a single instruction.
 In fact, the implications of this new protocol are enormous: we can now invoke a recursive function to an arbitrary depth without growing the stack at all-as long as the recursive call is the last statement in the function (or in a branch of the function when there are conditionals).
 A function that obeys this constraint on its recursive calls is known as a *properly tail-recursive* function.
-This subject was discussed in [section 22.3.](B9780080571157500224.xhtml#s0020)
+This subject was discussed in [section 22.3.](chapter22.md#s0020)
 
 All the examples so far have only dealt with global variables.
 Here's an example using local variables:
@@ -471,7 +471,7 @@ The code is indented to show nested functions.
 The top-level function loads the constant 4 and an anonymous function, and calls the function.
 This function loads the constant 3 and the local variable `x`, which is the first (0th) element in the top (0th) frame.
 It then calls the double-nested function on these two arguments.
-This function loads `x, y`, and `z: x` is now the 0th element in the next-to-top (1st) frame, and `y` and `z` are the 0th and 1st elements of the top frame.
+This function loads `x`, `y`, and `z`: `x` is now the 0th element in the next-to-top (1st) frame, and `y` and `z` are the 0th and 1st elements of the top frame.
 With all the arguments in place, the function `f` is finally called.
 Note that no continuations are stored-`f` can return directly to the caller of this function.
 
@@ -867,7 +867,7 @@ The `prim` data type has five slots.
 The first holds the name of a symbol that is globally bound to a primitive operation.
 The second, `n-args`, is the number of arguments that the primitive requires.
 We have to take into account the number of arguments to each function because we want `(+ x y)` to compile into a primitive addition instruction, while `(+ x y z)` should not.
-It will compile into a call to the + function instead.
+It will compile into a call to the `+` function instead.
 The `opcode` slot gives the opcode that is used to implement the primitive.
 The `always` field is true if the primitive always returns non-nil, `false` if it always returns nil, and nil otherwise.
 It is used in exercise 23.6.
@@ -919,9 +919,9 @@ We can enforce that by altering `gen-set` to preserve them as constants:
             (gen 'GSET var)))))
 ```
 
-Now an expression like `(+ x 1)` will be properly compiled using the + instruction rather than a subroutine call, and an expression like `(set ! + *)` will be flagged as an error when + is a global variable, but allowed when it has been locally bound.
+Now an expression like `(+ x 1)` will be properly compiled using the `+` instruction rather than a subroutine call, and an expression like `(set ! + *)` will be flagged as an error when `+` is a global variable, but allowed when it has been locally bound.
 However, we still need to be able to handle expressions like `(set ! add +)` and then `(add x y)`.
-Thus, we need some function object that + will be globally bound to, even if the compiler normally optimizes away references to that function.
+Thus, we need some function object that `+` will be globally bound to, even if the compiler normally optimizes away references to that function.
 The function `init-scheme-comp` takes care of this requirement:
 
 ```lisp
@@ -1163,8 +1163,8 @@ There are several paths we could pursue: we could implement the machine in hardw
 Each of these approaches has been taken in the past.
 
 **Hardware.** If the abstract machine is simple enough, it can be implemented directly in hardware.
-The Scheme-79 and Scheme-81 Chips ([Steele and Sussman 1980](B9780080571157500285.xhtml#bb1180); [Batali et al.
-1982](B9780080571157500285.xhtml#bb0070)) were VLSI implementations of a machine designed specifically to run Scheme.
+The Scheme-79 and Scheme-81 Chips ([Steele and Sussman 1980](bibliography.md#bb1180); [Batali et al.
+1982](bibliography.md#bb0070)) were VLSI implementations of a machine designed specifically to run Scheme.
 
 **Macro-Assembler.** In the translation or macro-assembler approach, each instruction in the abstract machine language is translated into one or more instructions in the host computer's instruction set.
 This can be done either directly or by generating assembly code and passing it to the host computer's assembler.
@@ -1180,7 +1180,7 @@ The most important architectural feature of the Lisp Machine was the inclusion o
 Also important was microcode to implement certain frequently used generic operations.
 For example, in the Symbolics 3600 Lisp Machine, the microcode for addition simultaneously did an integer add, a floating-point add, and a check of the tag bits.
 If both arguments turned out to be either integers or floating-point numbers, then the appropriate result was taken.
-Otherwise, a trap was signaled, and a converison routine was entered.
+Otherwise, a trap was signaled, and a conversion routine was entered.
 This approach makes the compiler relatively simple, but the trend in architecture is away from highly microcoded processors toward simpler (RISC) processors.
 
 **Software.** We can remove many of these problems with a technique known as *byte-code assembly.* Here we translate the instructions into a vector of bytes and then interpret the bytes with a byte-code interpreter.
@@ -1610,11 +1610,12 @@ This chapter has shown how to evaluate a language with Lisp-like syntax, by writ
 In this section we see how to make the `read` part slightly more general.
 We still read Lisp-like syntax, but the lexical conventions can be slightly different.
 
-The Lisp function `read` is driven by an object called the *readtable,* which is stored in the special variable `*readtable*.` This table associates some action to take with each of the possible characters that can be read.
+The Lisp function `read` is driven by an object called the *readtable,* which is stored in the special variable `*readtable*`.
+This table associates some action to take with each of the possible characters that can be read.
 The entry in the readtable for the character `#\(`, for example, would be directions to read a list.
 The entry for `#\;` would be directions to ignore every character up to the end of the line.
 
-Because the readtable is stored in a special variable, it is possible to alter completely the way read works just by dynamically rebinding this variable.
+Because the readtable is stored in a special variable, it is possible to alter completely the way `read` works just by dynamically rebinding this variable.
 
 The new function `scheme-read` temporarily changes the readtable to a new one, the Scheme readtable.
 It also accepts an optional argument, the stream to read from, and it returns a special marker on end of file.
@@ -1653,7 +1654,7 @@ Note that the backquote and comma characters are defined as read macros, but the
 
 (set-dispatch-macro-character #\# #\d
   ;; In both Common Lisp and Scheme,
-  ;; #x, #o and #b are hexidecimal, octal, and binary,
+  ;; #x, #o and #b are hexadecimal, octal, and binary,
   ;; e.g. #xff = #o377 = #b11111111 = 255
   ;; In Scheme only, #d255 is decimal 255.
   #'(lambda (stream &rest ignore)
@@ -1794,13 +1795,13 @@ Those who do define local functions tend not to use already established names li
 ## 23.6 History and References
 
 Guy Steele's 1978 MIT master's thesis on the language Scheme, rewritten as Steele 1983, describes an innovative and influential compiler for Scheme, called RABBIT.<a id="tfn23-2"></a><sup>[2](#fn23-2)</sup>
-A good article on an "industrial-strength" Scheme compiler based on this approach is described in [Kranz et al.'s 1986](B9780080571157500285.xhtml#bb0675) paper on ORBIT, the compiler for the T dialect of Scheme.
+A good article on an "industrial-strength" Scheme compiler based on this approach is described in [Kranz et al.'s 1986](bibliography.md#bb0675) paper on ORBIT, the compiler for the T dialect of Scheme.
 
 Abelson and Sussman's *Structure and Interpretation of Computer Programs* (1985) contains an excellent chapter on compilation, using slightly different techniques and compiling into a somewhat more confusing machine language.
-Another good text is [John Allen's *Anatomy of Lisp* (1978)](B9780080571157500285.xhtml#bb0040).
+Another good text is [John Allen's *Anatomy of Lisp* (1978)](bibliography.md#bb0040).
 It presents a very clear, simple compiler, although it is for an older, dynamically scoped dialect of Lisp and it does not address tail-recursion or `call/cc`.
 
-The peephole optimizer described here is based on the one in [Masinter and Deutsch 1980](B9780080571157500285.xhtml#bb0780).
+The peephole optimizer described here is based on the one in [Masinter and Deutsch 1980](bibliography.md#bb0780).
 
 ## 23.7 Exercises
 
@@ -1810,7 +1811,7 @@ How could you make `scheme-read` account for this?
 
 **Exercise  23.4 [m]** Is it possible to make the core Scheme language even smaller, by eliminating any of the five special forms `(quote, begin, set!, if, lambda)` and replacing them with macros?
 
-**Exercise  23.5 [m]** Add the ability to recognize internal defines (see [page 779](B9780080571157500224.xhtml#p779)).
+**Exercise  23.5 [m]** Add the ability to recognize internal defines (see [page 779](chapter22.md#p779)).
 
 **Exercise  23.6 [h]** In `comp-if` we included a special case for `(if t x y)` and `(if nil x y)`.
 But there are other cases where we know the value of the predicate.
@@ -1859,11 +1860,9 @@ What time and space complexity does it have?
 
 The next three exercises describe extensions that are not part of the Scheme standard.
 
-**Exercise  23.8 [h]** The set!
-special form is defined only when its first argument is a symbol.
+**Exercise  23.8 [h]** The `set!` special form is defined only when its first argument is a symbol.
 Extend `set!` to work like `setf` when the first argument is a list.
-That is, `(set!
-(car x) y)` should expand into something like `((setter car) y x)`, where `(setter car)` evaluates to the primitive procedure `set-car!`.
+That is, `(set! (car x) y)` should expand into something like `((setter car) y x)`, where `(setter car)` evaluates to the primitive procedure `set-car!`.
 You will need to add some new primitive functions, and you should also provide a way for the user to define new `set!` procedures.
 One way to do that would be with a `setter` function for `set!`, for example:
 

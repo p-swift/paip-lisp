@@ -195,13 +195,13 @@ The `and` form tests whether every one of a list of conditions is true, and `or`
 Both evaluate the arguments left to right, and stop as soon as the final result can be determined.
 Here is a table of equivalences:
 
-| **conditional**                  | `if` **form**                       | `cond` **form**                    |
-|----------------------------------|-------------------------------------|------------------------------------|
-| `(when` *test a b c*)            | `(if` *test* `(progn` *a  b c*))    | `(cond` (*test a b c*))            |
-| `(unless` *test x y*)            | `(if (not` *test*) `(progn` *x y*)) | `(cond ((not` *test*) *x y*))      |
-| `(and` *a b c*)                  | `(if` *a* `(if` *b c*))             | `(cond` (*a* `(cond` (*b c*))))    |
-| `(or` *a b c*)                   | `(if` *a a* `(if` *b b c*))         | `(cond (a)` (*b*) (*c*))           |
-| `(*case*` *a* (*b c*) `*(t x*))` | `(if (eql` *a 'b*) *c x*)           | `(cond ((eql` *a 'b*) *c*) (*t x*))|
+| conditional                    | `if` form                           | `cond` form                        |
+|--------------------------------|-------------------------------------|------------------------------------|
+| `(when` *test a b c*)          | `(if` *test* `(progn` *a  b c*))    | `(cond` (*test a b c*))            |
+| `(unless` *test x y*)          | `(if (not` *test*) `(progn` *x y*)) | `(cond ((not` *test*) *x y*))      |
+| `(and` *a b c*)                | `(if` *a* `(if` *b c*))             | `(cond` (*a* `(cond` (*b c*))))    |
+| `(or` *a b c*)                 | `(if` *a a* `(if` *b b c*))         | `(cond (a)` (*b*) (*c*))           |
+| `(case` *a* (*b c*) (`t` *x*)) | `(if (eql` *a 'b*) *c x*)           | `(cond ((eql` *a 'b*) *c*) (`t` *x*)) |
 
 It is considered poor style to use `and` and `or` for anything other than testing a logical condition, `when`, `unless,` and `if` can all be used for taking conditional action.
 For example:
@@ -286,7 +286,7 @@ Here is a table of corresponding assignment forms in Lisp and Pascal:
 `setf` can be used to set a component of a structure as well as to set a variable.
 In languages like Pascal, the expressions that can appear on the left-hand side of an assignment statement are limited by the syntax of the language.
 In Lisp, the user can extend the expressions that are allowed in a `setf` form using the special forms `defsetf` or `define-setf-method`.
-These are introduced on [pages 514](B9780080571157500157.xhtml#p514) and [884](B978008057115750025X.xhtml#p884) respectively.
+These are introduced on [pages 514](chapter15.md#p514) and [884](chapter25.md#p884) respectively.
 
 There are also some built-in functions that modify places.
 For example, (`rplacd list nil`) has the same effect as (`setf` (`rest list`) `nil`), except that it returns `list` instead of `nil`.
@@ -573,7 +573,7 @@ Second, many of the functions accept keywords that allow the user to vary the te
 
 > (remove 1 '(1 2 3 2 1 0 -1) :test #'<) => (1 1 0 -1)
 
-> (remove 1 '(1 2 3 2 1 0 -1) : start 4) => (1 2 3 2 0 -1)
+> (remove 1 '(1 2 3 2 1 0 -1) :start 4) => (1 2 3 2 0 -1)
 ```
 
 Third, some have corresponding functions ending in `-if` or `-if-not` that take a predicate rather than an element to match against:
@@ -734,9 +734,9 @@ First, to implement side effects in a branch of a two-branched conditional, one 
 If the conditional had only one branch, then `when` or `unless` should be used, since they allow an implicit `progn`.
 If there are more than two branches, then `cond` should be used.
 
-Second, `progn` is sometimes needed in macros that expand into more than one top-level form, as in the `defun*` macro on page 326, [section 10.3](B9780080571157500108.xhtml#s0020).
+Second, `progn` is sometimes needed in macros that expand into more than one top-level form, as in the `defun*` macro on page 326, [section 10.3](chapter10.md#s0020).
 Third, a progn is sometimes needed in an `unwind-protect`, an advanced macro.
-An example of this is the `with-resource` macro on [page 338](B9780080571157500108.xhtml#p338), [section 10.4](B9780080571157500108.xhtml#s0025).
+An example of this is the `with-resource` macro on [page 338](chapter10.md#p338), [section 10.4](chapter10.md#s0025).
 
 The forms `trace` and `untrace` are used to control debugging information about entry and exit to a function:
 
@@ -846,7 +846,7 @@ We can see what this macro expands into by using `macroexpand`, and see how it r
 NIL
 ```
 
-[Section 24.6](B9780080571157500248.xhtml) (page 853) describes a more complicated macro and some details on the pitfalls of writing complicated macros (page 855).
+[Section 24.6](chapter24.md) (page 853) describes a more complicated macro and some details on the pitfalls of writing complicated macros (page 855).
 
 ### Backquote Notation
 
@@ -867,7 +867,7 @@ The need to build up code (and noncode data) from components is so frequent that
 The backquote character ``"`"`` is similar to the quote character `"'"`.
 A backquote indicates that what follows is *mostly* a literal expression but may contain some components that are to be evaluated.
 Anything marked by a leading comma `","` is evaluated and inserted into the structure, and anything marked with a leading `",@"` must evaluate to a list that is spliced into the structure: each element of the list is inserted, without the top-level parentheses.
-The notation is covered in more detail in [section 23.5](B9780080571157500236.xhtml#s0030).
+The notation is covered in more detail in [section 23.5](chapter23.md#s0030).
 Here we use the combination of backquote and comma to rewrite `while`:
 
 ```lisp
@@ -996,7 +996,7 @@ Next, `eql` tests for objects that are either `eq` or are equivalent numbers.
 `equal` tests for objects that are either `eql` or are lists or strings with `eql` elements.
 Finally, `equalp` is like `equal` except it also matches upper- and lowercase characters and numbers of different types.
 The following table summarizes the results of applying each of the four predicates to various values of *x* and *y*.
-The ? value means that the result depends on your implementation: two integers that are `eql` may or may not be `eq`.
+The `?` value means that the result depends on your implementation: two integers that are `eql` may or may not be `eq`.
 
 | *x*     | *y*     | `eq`  | `eql` | `equal` | `equalp` |
 |---------|---------|-------|-------|---------|----------|
@@ -1433,7 +1433,7 @@ The following table shows a number of more specialized data types that are not u
 
 In addition, there are even more specialized types, such as `short-float`, `compiled-function`, and `bit-vector`.
 It is also possible to construct more exact types, such as (`vector (integer 0 3) 100`), which represents a vector of 100 elements, each of which is an integer from 0 to 3, inclusive.
-[Section 10.1](B9780080571157500108.xhtml#s0010) gives more information on types and their use.
+[Section 10.1](chapter10.md#s0010) gives more information on types and their use.
 
 While almost every type has a predicate, it is also true that there are predicates that are not type recognizers but rather recognize some more general condition.
 For example, `oddp` is true only of odd integers, and `string-greaterp` is true if one string is alphabetically greater than another.
@@ -1465,7 +1465,7 @@ For example, the string `"hello there"` would print as `"hello there".`
 The function `princ` is used to print in a human-readable format.
 The string in question would print as `hello there` with `princ`-the quote marks are not printed.
 This means that `read` cannot recover the original form; `read` would interpret it as two symbols, not one string.
-The function `write` accepts eleven different keyword arguments that control whether it acts like `prin1` or `princ,` among other things.
+The function `write` accepts eleven different keyword arguments that control whether it acts like `prin1` or `princ`, among other things.
 
 The output functions also take a stream as an optional argument.
 In the following, we create the file `test.text` and print two expressions to it.
@@ -1476,12 +1476,12 @@ The final `read` hits the end of file, and so returns the specified value, `eof`
 ```lisp
 > (with-open-file (stream "test.text" :direction :output)
     (print '(hello there) stream)
-    (princ 'goodbye stream))=>
-GOODBYE        :*and creates the file test.text
+    (princ 'goodbye stream)) =>
+GOODBYE        ; and creates the file test.text
 
 > (with-open-file (stream "test.text" :direction :input)
     (list (read stream) (read-char stream) (read stream)
-          (read stream nil 'eof)))=>
+          (read stream nil 'eof))) =>
 ((HELLO THERE) #\G OODBYE EOF)
 ```
 
@@ -1572,14 +1572,14 @@ All output, including the symbols <= and => are printed by the stepper itself; I
 133/4
 ```
 
-The functions `describe`, `inspect, documentation,` and `apropos` provide information about the state of the current program.
+The functions `describe`, `inspect`, `documentation`, and `apropos` provide information about the state of the current program.
 `apropos` prints information about all symbols whose name matches the argument:
 
 ```lisp
 > (apropos 'string)
 MAKE-STRING            function (LENGTH &KEY INITIAL-ELEMENT)
-PRIN1-T0-STRING        function (OBJECT)
-PRINC-T0-STRING        function (OBJECT)
+PRIN1-TO-STRING        function (OBJECT)
+PRINC-TO-STRING        function (OBJECT)
 STRING                 function (X)
 ...
 ```
@@ -1765,7 +1765,7 @@ Calling the consistency checker is the fastest way to help isolate bugs in the d
 
 In addition, it is a good idea to keep a list of difficult test cases on hand.
 That way, when the program is changed, it will be easy to see if the change reintroduces a bug that had been previously removed.
-This is called *regression testing,* and [Waters (1991)](B9780080571157500285.xhtml#bb1350) presents an interesting tool for maintaining a suite of regression tests.
+This is called *regression testing,* and [Waters (1991)](bibliography.md#bb1350) presents an interesting tool for maintaining a suite of regression tests.
 But it is simple enough to maintain an informal test suite with a function that calls assert on a series of examples:
 
 ```lisp
@@ -2063,7 +2063,7 @@ Here is the program:
 
 (defun problem (x op y)
   "Ask a math problem, read a reply, and say if it is correct."
-  (format t "~&How much is ~d ~a ~d? " x op y)
+  (format t "~&How much is ~d ~a ~d?" x op y)
   (if (eql (read) (funcall op x y))
       (princ "Correct!")
       (princ "Sorry, that's not right.")))
@@ -2257,7 +2257,7 @@ The definition is:
 The only hard part about this definition is understanding the parameter list.
 The `&rest` accumulates all the keyword/value pairs in the variable `keyword-args`.
 In addition to the `&rest` parameter, two specific keyword parameters, `:test` and `:test-not`, are specified.
-Any time you put a `&key` in a parameter list, you need an `&allow-other- keys` if, in fact, other keywords are allowed.
+Any time you put a `&key` in a parameter list, you need an `&allow-other-keys` if, in fact, other keywords are allowed.
 In this case we want to accept keywords like `:start` and `:key` and pass them on to `remove`.
 
 All the keyword/value pairs will be accumulated in the list `keyword-args`, including the `:test` or `:test-not` values.
@@ -2336,7 +2336,7 @@ You will have to consult a reference to learn new `format` directives.
 
 ## 3.22 Answers
 
-**Answer 3.2** `(cons` *a b*) = (`list *` *a b*)
+**Answer 3.2** `(cons` *a b*) = (`list*` *a b*)
 
 **Answer 3.3**
 
@@ -2455,7 +2455,7 @@ or, with an ANSI-compliant Common Lisp, you can specify a `:` key
   (reduce #'+ list :key #'(lambda (x) 1)))
 ```
 
-**Answer 3.12** `(format t "~@(~{~a~^ ~).~)" '(this is a test))`
+**Answer 3.12** `(format t "~@(~{~a~^ ~}.~)" '(this is a test))`
 
 ----------------------
 

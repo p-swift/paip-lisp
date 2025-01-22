@@ -5,16 +5,16 @@
 
 > -David Hockney
 
-[Chapter 8](B978008057115750008X.xhtml) started with high hopes: to take an existing pattern matcher, copy down some mathematical identities out of a reference book, and come up with a usable symbolic algebra system.
+[Chapter 8](chapter8.md) started with high hopes: to take an existing pattern matcher, copy down some mathematical identities out of a reference book, and come up with a usable symbolic algebra system.
 The resulting system *was* usable for some purposes, and it showed that the technique of rule-based translation is a powerful one.
-However, the problems of [section 8.5](B978008057115750008X.xhtml#s0030) show that not everything can be done easily and efficiently within the rule-based pattern matching framework.
+However, the problems of [section 8.5](chapter8.md#s0030) show that not everything can be done easily and efficiently within the rule-based pattern matching framework.
 
 There are important mathematical transformations that are difficult to express in the rule-based approach.
 For example, dividing two polynomials to obtain a quotient and remainder is a task that is easier to express as an algorithm-a program-than as a rule or set of rules.
 
 In addition, there is a problem with efficiency.
 Pieces of the input expressions are simplified over and over again, and much time is spent interpreting rules that do not apply.
-[Section 9.6](B9780080571157500091.xhtml#s0035) showed some techniques for speeding up the program by a factor of 100 on inputs of a dozen or so symbols, but for expressions with a hundred or so symbols, the speed-up is not enough.
+[Section 9.6](chapter9.md#s0035) showed some techniques for speeding up the program by a factor of 100 on inputs of a dozen or so symbols, but for expressions with a hundred or so symbols, the speed-up is not enough.
 We can do better by designing a specialized representation from the ground up.
 
 Serious algebraic manipulation programs generally enforce a notion of *canonical simplification.* That is, expressions are converted into a canonical internal format that may be far removed from the input form.
@@ -50,7 +50,7 @@ We can define an input format for polynomials as follows:
 
 2.  Any Lisp symbol is a polynomial.
 
-3.  If *p* and *q* are polynomials, so are (*p + q*) and (*p * q*).
+3.  If *p* and *q* are polynomials, so are (*p + q*) and (*p \* q*).
 
 4.  If *p* is a polynomial and *n* is a positive integer, then (*p* ^ *n*) is a polynomial.
 
@@ -137,23 +137,26 @@ A glossary for the canonical simplifier program is given in [figure 15.1](#f0010
 Figure 15.1: Glossary for the Symbolic Manipulation Program
 
 The functions defining the type `polynomial` follow.
+
 Because we are concerned with efficiency, we proclaim certain short functions to be compiled inline, use the specific function `svref` (simple-vector reference) rather than the more general aref, and provide declarations for the polynomials using the special form the.
-More details on efficiency issues are given in [Chapter 9](B9780080571157500091.xhtml).
+More details on efficiency issues are given in [Chapter 9](chapter9.md).
 
 ```lisp
 (proclaim '(inline main-var degree coef
-       var= var> poly make-poly))
+                   var= var> poly make-poly))
+
 (deftype polynomial () 'simple-vector)
+
 (defun main-var (p) (svref (the polynomial p) 0))
-(defun coef (p i) (svref (the polynomial p) (+ i 1)))
-(defun degree (p) (-(length (the polynomial p)) 2))
+(defun coef (p i)   (svref (the polynomial p) (+ i 1)))
+(defun degree (p)   (-(length (the polynomial p)) 2))
 ```
 
 We had to make another design decision in defining `coef`, the function to extract a coefficient from a polynomial.
 As stated above, the *i*th coefficient of a polynomial is in element *i* + 1 of the vector.
-If we required the caller of coef to pass in *i* + 1 to get *i,* we might be able to save a few addition operations.
+If we required the caller of `coef` to pass in *i* + 1 to get *i,* we might be able to save a few addition operations.
 The design decision was that this would be too confusing and error prone.
-Thus, coef expects to be passed *i* and does the addition itself.
+Thus, `coef` expects to be passed *i* and does the addition itself.
 
 For our format, we will insist that main variables be symbols, while coefficients can be numbers or other polynomials.
 A "production" version of the program might have to account for main variables like `(sin x)`, as well as other complications like + and * with more than two arguments, and noninteger powers.
@@ -195,7 +198,7 @@ So the `defsetf` for `main-var` says that `(setf (main-varp) val)` is equivalent
 A `defsetf` is much like a `defmacro`, but there is a little less burden placed on the writer of `defsetf`.
 Instead of passing `p` and `val` directly to the `setf` method, Common Lisp binds local variables to these expressions, and passes those variables to the `setf` method.
 That way, the writer does not have to worry about evaluating the expressions in the wrong order or the wrong number of times.
-It is also possible to gain finer control over the whole process with `define-setf-method`, as explained on [page 884](B978008057115750025X.xhtml#p884).
+It is also possible to gain finer control over the whole process with `define-setf-method`, as explained on [page 884](chapter25.md#p884).
 
 The functions `poly+poly, poly*poly` and `poly^n` perform addition, multiplication, and exponentiation of polynomials, respectively.
 They are defined with several helping functions.
@@ -243,7 +246,7 @@ The operators + and - need interface functions that handle both unary and binary
 ```
 
 The function `prefix->canon` accepts inputs that were not part of our definition of polynomials: unary positive and negation operators and binary subtraction and differentiation operators.
-These are permissible because they can all be reduced to the elementary + and * operations.
+These are permissible because they can all be reduced to the elementary `+` and `*` operations.
 
 Remember that our problems with canonical form all began with the inability to decide which was simpler: `(+ x y)` or `(+ y x)`.
 In this system, we define a canonical form by imposing an ordering on variables (we use alphabetic ordering as defined by `string>`).
@@ -380,7 +383,7 @@ First, the exponentiation function:
 
 ## 15.2 Differentiating Polynomials
 
-The differentiation routine is easy, mainly because there are only two operators (+ and \*) to deal with:
+The differentiation routine is easy, mainly because there are only two operators (`+` and `*`) to deal with:
 
 ```lisp
 (defun deriv-poly (p x)
@@ -552,7 +555,7 @@ The modified version was used by Richard Gabriel in his suite of Common Lisp ben
 The benchmark program is called `frpoly`, because it deals with polynomials and was originally written in the dialect Franz Lisp.
 The `frpoly` benchmark encodes polynomials as lists rather than vectors, and goes to great lengths to be efficient.
 Otherwise, it is similar to the algorithms used here (although the code itself is quite different, using progs and gos and other features that have fallen into disfavor in the intervening decades).
-The particular benchmark we will use here is raising 1 ***+** x + y + z* to the 15th power:
+The particular benchmark we will use here is raising 1 + *x* + *y* + *z* to the 15th power:
 
 ```lisp
 (defun r15-test ()
@@ -572,7 +575,7 @@ We can time `(simp ' ( (1 + x + y + z) ^ 15)))`.
 This takes only a tenth of a second, but that is because it is doing no work at all-the answer is the same as the input!
 Alternately, we can take the expression computed by `(poly^n r 15)`, convert it to prefix, and pass that to `simplify`.
 `simplify` takes 27.8 seconds on this, so the rule-based version is much slower.
-[Section 9.6](B9780080571157500091.xhtml#s0035) describes ways to speed up the rule-based program, and a comparison of timing data appears on [page 525](#p525).
+[Section 9.6](chapter9.md#s0035) describes ways to speed up the rule-based program, and a comparison of timing data appears on [page 525](#p525).
 
 There are always surprises when it comes down to measuring timing data.
 For example, the alert reader may have noticed that the version of `poly^n` defined above requires *n* multiplications.
@@ -630,7 +633,7 @@ For this problem, it is clear that thinking recursively leads to a simpler funct
 
 It turns out that this is not the final word.
 Exponentiation of polynomials can be done even faster, with a little more mathematical sophistication.
-[Richard Fateman's 1974](B9780080571157500285.xhtml#bb0380) paper on Polynomial Multiplication analyzes the complexity of a variety of exponentiation algorithms.
+[Richard Fateman's 1974](bibliography.md#bb0380) paper on Polynomial Multiplication analyzes the complexity of a variety of exponentiation algorithms.
 Instead of the usual asymptotic analysis (e.g.
 *O*(*n*) or *O*(*n*<sup>2</sup>)), he uses a fine-grained analysis that computes the constant factors (e.g.
 1000 x *n* or 2 x *n*<sup>2</sup>).
@@ -797,7 +800,7 @@ If we are interested in assuring we have a canonical form, the safest thing is t
 All the other functions can be defined in terms of these two.
 With this extension, the set of expressions we can form is closed under differentiation, and it is possible to canonicalize expressions.
 The `result` is a mathematically sound construction known as a *differentiable field.*
-This is precisely the construct that is assumed by the Risch integration algorithm ([Risch 1969](B9780080571157500285.xhtml#bb0985), [1979](B9780080571157500285.xhtml#bb0990)).
+This is precisely the construct that is assumed by the Risch integration algorithm ([Risch 1969](bibliography.md#bb0985), [1979](bibliography.md#bb0990)).
 
 The disadvantage of this minimal extension is that answers may be expressed in unfamiliar terms.
 The user asks for *d* sin(*x*<sup>2</sup>)*/dx,* expecting a simple answer in terms of cos, and is surprised to see a complex answer involving *e<sup>ix</sup>*.
@@ -808,10 +811,10 @@ In general, the result will not be a wrong answer but rather the failure to find
 
 ## 15.7 History and References
 
-A brief history of symbolic algebra systems is given in [chapter 8](B978008057115750008X.xhtml).
-[Fateman (1979)](B9780080571157500285.xhtml#bb0385), [Martin and Fateman (1971)](B9780080571157500285.xhtml#bb0775), and [Davenport et al.
-(1988)](B9780080571157500285.xhtml#bb0270) give more details on the MACSYMA system, on which this chapter is loosely based.
-[Fateman (1991)](B9780080571157500285.xhtml#bb0390) discusses the `frpoly` benchmark and introduces the vector implementation used in this chapter.
+A brief history of symbolic algebra systems is given in [chapter 8](chapter8.md).
+[Fateman (1979)](bibliography.md#bb0385), [Martin and Fateman (1971)](bibliography.md#bb0775), and [Davenport et al.
+(1988)](bibliography.md#bb0270) give more details on the MACSYMA system, on which this chapter is loosely based.
+[Fateman (1991)](bibliography.md#bb0390) discusses the `frpoly` benchmark and introduces the vector implementation used in this chapter.
 
 ## 15.8 Exercises
 
@@ -819,9 +822,9 @@ A brief history of symbolic algebra systems is given in [chapter 8](B97800805711
 
 **Exercise 15.8 [m]** Modify `deriv` to handle the extended rational expressions.
 
-**Exercise 15.9 [d]** Adapt the integration routine from [section 8.6](B9780080571157500078.xhtml#s0035) ([page 252](B978008057115750008X.xhtml#p252)) to the rational expression representation.
+**Exercise 15.9 [d]** Adapt the integration routine from [section 8.6](chapter8.md#s0035) ([page 252](chapter8.md#p252)) to the rational expression representation.
 [Davenport et al.
-1988](B9780080571157500285.xhtml#bb0270) may be useful.
+1988](bibliography.md#bb0270) may be useful.
 
 **Exercise 15.10 [s]** Give several reasons why constant polynomials, like 3, are represented as integers rather than as vectors.
 
@@ -872,7 +875,7 @@ A brief history of symbolic algebra systems is given in [chapter 8](B97800805711
 ----------------------
 
 <a id="fn15-1"></a><sup>[1](#tfn15-1)</sup>
-In fact, the algebraic properties of polynomial arithmetic and its generalizations fit so well with ideas in data abstraction that an extended example (in Scheme) on this topic is provided in *Structure and Interpretation of Computer Programs* by Abelson and Sussman (see section 2.4.3, [pages 153](B9780080571157500054.xhtml#p153)-[166](B9780080571157500054.xhtml#p166)).
+In fact, the algebraic properties of polynomial arithmetic and its generalizations fit so well with ideas in data abstraction that an extended example (in Scheme) on this topic is provided in *Structure and Interpretation of Computer Programs* by Abelson and Sussman (see section 2.4.3, pages 153-166).
 We'll pursue a slightly different approach here.
 
 <a id="fn15-2"></a><sup>[2](#tfn15-2)</sup>

@@ -186,7 +186,7 @@ In terms of the example above, we would use:
 (WHAT WOULD IT MEAN TO YOU IF YOU GOT A VACATION ?)
 ```
 
-Now we need to arrange for `pat-match` to return an a-list, rather than just T for success.
+Now we need to arrange for `pat-match` to return an a-list, rather than just `T` for success.
 Here's a first attempt:
 
 ```lisp
@@ -325,7 +325,7 @@ Notice the distinction between `NIL` and `((T . T))`.
 The latter means that the match succeeded, but there were no bindings to return.
 Also, remember that `(?X 2 + 2)` means the same as `(?X . (2 + 2))`.
 
-A more powerful implementation of `pat-match` is given in chapter 6.
+A more powerful implementation of `pat-match` is given in [chapter 6](chapter6.md).
 Yet another implementation is given in section 10.4.
 It is more efficient but more cumbersome to use.
 
